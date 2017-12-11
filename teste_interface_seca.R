@@ -8,17 +8,17 @@ library(ggplot2)
 
 # UI ----------------------------------------------------------------------
 
-dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
-
+#dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
+dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
 ui <- dashboardPage(
   dashboardHeader(title = "Seguros"),
   dashboardSidebar(
     
     
     selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2,"Anuidade" = 3),multiple = F),
-    selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 20000" = 3)),
+    selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
     selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F),
-    numericInput("ben", "Beneficio", min = 0, max = Inf, value = 1),
+    numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
     numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
     numericInput("n", "Período",min = 0, max = (nrow(dados)-1), value = 1, step = 1),
     numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 ),
@@ -44,9 +44,10 @@ ui <- dashboardPage(
 
 
 # Funções -----------------------------------------------------------------
-dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
+#dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
+#dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
 attach(dados)
-Premio_A <- function( i, idade, n, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
+SV_Temp <- function( i, idade, n, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
@@ -57,8 +58,8 @@ Premio_A <- function( i, idade, n, b, qx){ # i = taxa de juros, n = tempo, b = v
   return (Ax)
 }
 
-Premio_V <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
-  n <- max(Idade)-25 
+SV_Vit <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
+  n <- max(Idade)-idade 
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
@@ -92,14 +93,14 @@ server <- function(input, output) {
         }
       }
       if(input$seg==1){
-        a <- Premio_A(input$tx, round(input$idade, 0), input$n, input$ben, qx)
+        a <- SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx)
       }
       if(input$seg==2){
-        a <- Premio_V(input$tx, input$idade, input$ben, qx)}
+        a <- SV_Vit(input$tx, input$idade, input$ben, qx)}
       if(input$seg==3){
-        a <- Premio_A(input$tx, input$idade, input$n, input$ben, qx)
+        a <- SV_Temp(input$tx, input$idade, input$n, input$ben, qx)
       }
-      cat('O valor do seu prêmio é:', a)
+      cat('O valor do seu prêmio puro único é:', a)
     }else{
       cat('O período temporário está errado')
     } 
@@ -108,12 +109,12 @@ server <- function(input, output) {
   
   # output$grafico <- renderPlot({
   #   if(input$seg==1){
-  #     a <- Premio_A(input$tx, input$idade, input$n, input$ben)
+  #     a <- SV_Temp(input$tx, input$idade, input$n, input$ben)
   #   }
   #   if(input$seg==2){
-  #     a <- Premio_A(input$tx, input$idade, input$n, input$ben)}
+  #     a <- SV_Temp(input$tx, input$idade, input$n, input$ben)}
   #   if(input$seg==3){
-  #     a <- Premio_A(input$tx, input$idade, input$n, input$ben)
+  #     a <- SV_Temp(input$tx, input$idade, input$n, input$ben)
   #   }
   #   a
   # })
