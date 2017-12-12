@@ -70,6 +70,18 @@ SV_Vit <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor 
   return (Ax)
 }
 
+Dotal_Puro<-function(i, idade, n, b, qx){
+  px <- 1-qx
+  v <- 1/(i+1)
+  Ax <- b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
+  return(Ax)
+}
+Dotal<-function(i, idade, n, b, qx){
+  Ax<-Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx)
+  return(Ax)
+}
+
+
 
 
 # Server ------------------------------------------------------------------
