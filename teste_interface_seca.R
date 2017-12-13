@@ -56,47 +56,47 @@ ui <- dashboardPage(
 #dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
 #dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
 attach(dados)
-SV_Temp <- function( i, idade, n, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
+SV_Temp <- function( i, idade, n, b, qx, ca){ # i = taxa de juros, n = tempo, b = valor do beneficio
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  Ax <- b* sum(v*pxx*qxx)
+  Ax <- ca * b* sum(v*pxx*qxx)
   Ax <- round(Ax, 2)
   return (Ax)
 }
 
-SV_Vit <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
+SV_Vit <- function( i, idade, b, qx, ca){ # i = taxa de juros, n = tempo, b = valor do beneficio
   n <- max(Idade)-idade 
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  Ax <- b* sum(v*pxx*qxx)
+  Ax <- ca * b* sum(v*pxx*qxx)
   Ax <- round(Ax, 2)
   return (Ax)
 }
 
 # Verificar o cáculo Pedro
-Anuid = function( i, idade, n , b, qx){ # i= taxa de juros, n= período, b = benefício
+Anuid = function( i, idade, n , b, qx, ca){ # i= taxa de juros, n= período, b = benefício
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  ax <- round((b* sum(v*pxx)),2)
+  ax <- round((ca *b* sum(v*pxx)),2)
   return(ax)
 }
 
-Dotal_Puro<-function(i, idade, n, b, qx){
+Dotal_Puro<-function(i, idade, n, b, qx, ca){
   px <- 1-qx
   v <- 1/(i+1)
-  Ax <- b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
+  Ax <- ca * b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
   return(Ax)
 }
-Dotal<-function(i, idade, n, b, qx){
-  Ax<-Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx)
+Dotal<-function(i, idade, n, b, qx, ca){
+  Ax<- (Dotal_Puro(i, idade, n, b, qx, ca)+SV_Temp(i, idade, n, b, qx, ca))
   return(Ax)
 }
 
@@ -136,16 +136,16 @@ server <- function(input, output) {
         a <- SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx, care, m)
       }
       if(input$seg==2){
-        a <- SV_Vit(input$tx, input$idade, input$ben, qx, care, m)
+        a <- SV_Vit(input$tx, (input$idade + m), input$ben, qx, care)
         }
       if(input$seg==3){
-        a <- Anuid(input$tx, input$idade, input$ben, qx, care, m)
+        a <- Anuid(input$tx, (input$idade + m), input$ben, qx, care)
       }
       if(input$seg==4){
-        a <- Dotal_Puro(input$tx, input$idade, input$n, input$ben, qx, care, m)
+        a <- Dotal_Puro(input$tx, (input$idade + m), input$n, input$ben, qx, care)
       }
       if(input$seg==5){
-        a <- Dotal(input$tx, input$idade, input$n, input$ben, qx, care, m)
+        a <- Dotal(input$tx, (input$ + m), input$n, input$ben, qx, care)
       }
       cat('O valor do seu prêmio puro único é:', a)
     }else{
