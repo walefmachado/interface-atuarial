@@ -8,20 +8,25 @@ library(ggplot2)
 
 # UI ----------------------------------------------------------------------
 
-#dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
-dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
+dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
+#dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
 ui <- dashboardPage(
   dashboardHeader(title = "Seguros"),
   dashboardSidebar(
     
     
-    selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2,"Anuidade" = 3),multiple = F),
+    #Dotal Puro (Pedro)
+    selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2,"Anuidade" = 3, "Dotal Puro" = 4, "Dodal Misto" = 5),multiple = F),
     selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
-    selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F),
+    # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
+    conditionalPanel(condition = "input.tab == 3", selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
     numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
     numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
-    numericInput("n", "Período",min = 0, max = (nrow(dados)-1), value = 1, step = 1),
+    
+    # Se o seguro de vida vitalício não for selecionado então o agoritmo não mostra o painel período.
+    conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período",min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
     numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 ),
+    
     
     #Se a Seguro vitalício for selecionada...
     conditionalPanel(condition = "input.dist==1",numericInput("Período","Taxa de juros",value = 0),
@@ -70,6 +75,16 @@ SV_Vit <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor 
   return (Ax)
 }
 
+# Verificar o cáculo Pedro
+Anuid = function( i, idade, n , b, qx){ # i= taxa de juros, n= período, b = benefício
+  px <- 1-qx
+  f.desconto <- 1/(i+1)
+  v <- f.desconto^(1:n)
+  pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+  ax <- round((b* sum(v*pxx)),2)
+  return(ax)
+}
+
 Dotal_Puro<-function(i, idade, n, b, qx){
   px <- 1-qx
   v <- 1/(i+1)
@@ -108,9 +123,16 @@ server <- function(input, output) {
         a <- SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx)
       }
       if(input$seg==2){
-        a <- SV_Vit(input$tx, input$idade, input$ben, qx)}
+        a <- SV_Vit(input$tx, input$idade, input$ben, qx)
+        }
       if(input$seg==3){
-        a <- SV_Temp(input$tx, input$idade, input$n, input$ben, qx)
+        a <- Anuid(input$tx, input$idade, input$ben, qx)
+      }
+      if(input$seg==4){
+        a <- Dotal_Puro(input$tx, input$idade, input$n, input$ben, qx)
+      }
+      if(input$seg==5){
+        a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       }
       cat('O valor do seu prêmio puro único é:', a)
     }else{
