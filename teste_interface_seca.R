@@ -7,9 +7,8 @@ library(ggplot2)
 
 
 # UI ----------------------------------------------------------------------
-
-dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
-#dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
+local = getwd()
+dados <- read.table(paste0(local, '/interface-atuarial/tábuas_leitura_R.txt'), h=T)
 ui <- dashboardPage(
   dashboardHeader(title = "Seguros"),
   dashboardSidebar(
