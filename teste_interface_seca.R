@@ -79,8 +79,10 @@ SV_Vit <- function( i, idade, b, qx, ca){ # i = taxa de juros, n = tempo, b = va
   return (Ax)
 }
 
+
 # Verificar o cáculo Pedro
 Anuid = function( i, idade, n , b, qx, ca){ # i= taxa de juros, n= período, b = benefício
+
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
