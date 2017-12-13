@@ -7,8 +7,11 @@ library(ggplot2)
 
 
 # UI ----------------------------------------------------------------------
-local = getwd()
-dados <- read.table(paste0(local, '/interface-atuarial/tábuas_leitura_R.txt'), h=T)
+
+local <- paste0(getwd(), '/tábuas_leitura_R.txt')
+dados <- read.table(local, h=T)
+# dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
+
 ui <- dashboardPage(
   dashboardHeader(title = "Seguros"),
   dashboardSidebar(
@@ -136,7 +139,8 @@ server <- function(input, output) {
       cat('O valor do seu prêmio puro único é:', a)
     }else{
       cat('O período temporário está errado')
-    } 
+    }
+    # print(local)
   })
   
   
