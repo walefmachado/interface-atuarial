@@ -48,7 +48,8 @@ ui <- dashboardPage(
     
   ),dashboardBody(
     
-    verbatimTextOutput("hist"))
+    verbatimTextOutput("hist"),
+    plotOutput("gratabua"))
 )
 
 
@@ -149,13 +150,32 @@ server <- function(input, output) {
       if(input$seg==5){
         a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       }
-      cat('O valor do seu prêmio puro único é:', a)
+      cat('O prêmio puro único é:', a)
     }else{
       cat('O período temporário está errado')
     }
     # print(local)
   })
   
+  output$gratabua = renderPlot({
+    if((max(dados$Idade)-input$idade) >= input$n){
+      if(input$tab==1){
+        qx <- dados$AT_49_qx
+      }
+      if(input$tab==2){
+        qx <- dados$AT_83_qx
+      }
+      if(input$tab==3){
+        if(input$sex==1){
+          qx <- dados$AT_2000B_M_qx
+        }
+        if(input$sex==2){
+          qx <- dados$AT_2000B_F_qx
+        }
+      }
+    }
+    plot((1 -qx))
+  })
   
   # output$grafico <- renderPlot({
   #   if(input$seg==1){
