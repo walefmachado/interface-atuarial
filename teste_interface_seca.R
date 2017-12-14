@@ -174,7 +174,7 @@ server <- function(input, output) {
         }
       }
     }
-    plot((1 -qx))
+    plot(10000*cumprod(1 -qx), type="l", color="green", width="20", xlab="Anos", ylab="População")
   })
   
   # output$grafico <- renderPlot({
