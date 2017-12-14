@@ -18,10 +18,10 @@ ui <- dashboardPage(
     
     
     #Dotal Puro (Pedro)
-    selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2,"Anuidade" = 3, "Dotal Puro" = 4, "Dodal Misto" = 5),multiple = F),
+    selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2,"Anuidade" = 3, "Dotal Puro" = 4, "Dotal Misto" = 5),multiple = F),
     selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
-    checkboxInput("care", "Carencia", value = FALSE),
-    conditionalPanel(condition = "input.care == TRUE", numericInput("TempCar", "Tempo de Carencia", value = 1)),
+    #checkboxInput("care", "Carencia", value = FALSE),
+    #conditionalPanel(condition = "input.care == TRUE", numericInput("TempCar", "Tempo de Carencia", value = 1)),
     # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
     conditionalPanel(condition = "input.tab == 3", selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
     numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
@@ -56,49 +56,49 @@ ui <- dashboardPage(
 #dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
 #dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
 attach(dados)
-SV_Temp <- function( i, idade, n, b, qx, ca){ # i = taxa de juros, n = tempo, b = valor do beneficio
+SV_Temp <- function( i, idade, n, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  Ax <- ca * b* sum(v*pxx*qxx)
+  Ax <-  b* sum(v*pxx*qxx)
   Ax <- round(Ax, 2)
   return (Ax)
 }
 
-SV_Vit <- function( i, idade, b, qx, ca){ # i = taxa de juros, n = tempo, b = valor do beneficio
+SV_Vit <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
   n <- max(Idade)-idade 
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  Ax <- ca * b* sum(v*pxx*qxx)
+  Ax <-  b* sum(v*pxx*qxx)
   Ax <- round(Ax, 2)
   return (Ax)
 }
 
 
 # Verificar o cáculo Pedro
-Anuid = function( i, idade, n , b, qx, ca){ # i= taxa de juros, n= período, b = benefício
+Anuid = function( i, idade, n , b, qx){ # i= taxa de juros, n= período, b = benefício
 
   px <- 1-qx
   f.desconto <- 1/(i+1)
   v <- f.desconto^(1:n)
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  ax <- round((ca *b* sum(v*pxx)),2)
+  ax <- round((b* sum(v*pxx)),2)
   return(ax)
 }
 
-Dotal_Puro<-function(i, idade, n, b, qx, ca){
+Dotal_Puro<-function(i, idade, n, b, qx){
   px <- 1-qx
   v <- 1/(i+1)
-  Ax <- ca * b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
+  Ax <-  b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
   return(Ax)
 }
-Dotal<-function(i, idade, n, b, qx, ca){
-  Ax<- (Dotal_Puro(i, idade, n, b, qx, ca)+SV_Temp(i, idade, n, b, qx, ca))
+Dotal<-function(i, idade, n, b, qx){
+  Ax<- (Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx))
   return(Ax)
 }
 
@@ -126,28 +126,28 @@ server <- function(input, output) {
         }
       }
       
-      if(input$care == "FALSE"){
-        care = 1
-        m = 0
-      }else{
-        care = Dotal_Puro(input$tx, input$idade,input$TempCar, 1 , qx)
-        m = input$TempCar
-      }
+      #if(input$care == "FALSE"){
+      #   care = 1
+      #   m = 0
+      # }else{
+      #   care = Dotal_Puro(input$tx, input$idade,input$TempCar, 1 , qx)
+      #   m = input$TempCar
+      # }
       
       if(input$seg==1){
-        a <- SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx, care, m)
+        a <- SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx)
       }
       if(input$seg==2){
-        a <- SV_Vit(input$tx, (input$idade + m), input$ben, qx, care)
+        a <- SV_Vit(input$tx, input$idade, input$ben, qx)
         }
       if(input$seg==3){
-        a <- Anuid(input$tx, (input$idade + m), input$ben, qx, care)
+        a <- Anuid(input$tx, input$idade, input$n,  input$ben, qx)
       }
       if(input$seg==4){
-        a <- Dotal_Puro(input$tx, (input$idade + m), input$n, input$ben, qx, care)
+        a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
       }
       if(input$seg==5){
-        a <- Dotal(input$tx, (input$ + m), input$n, input$ben, qx, care)
+        a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       }
       cat('O valor do seu prêmio puro único é:', a)
     }else{
