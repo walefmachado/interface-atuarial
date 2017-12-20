@@ -11,42 +11,47 @@ library(ggplot2)
 local <- paste0(getwd(), '/tábuas_leitura_R.txt')
 dados <- read.table(local, h=T)
 # dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
-
 ui <- dashboardPage(
   dashboardHeader(title = "Cálculo Atuarial"),
   dashboardSidebar(
     
-    conditionalPanel(condition = "input.abaselecionada==1", 
+
+    conditionalPanel(condition = "input.abaselecionada==1",
                      selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2) ,multiple = F),
-                     conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
-                     
-                     
-                     conditionalPanel(condition = "input.abaselecionada==2", 
-                                      selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F),
-                                      conditionalPanel(condition = "input.anu != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
-                                      
-                                      conditionalPanel(condition = "input.abaselecionada==3", 
-                                                       selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F),
-                                                       numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
-                                      
-                                      # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
-                                      selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
-                                      conditionalPanel(condition = "input.tab == 3", selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
-                                      numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
-                                      numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),                         
-                                      numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 ),
+                     # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
+                     conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))
                      ),
-                     dashboardBody(
-                       tabsetPanel(type = "tab",
-                                   tabPanel("Seguro de Vida",column(width = 6,verbatimTextOutput("segs")),value = 1),
-                                   #tabPanel("Seguro Vitalício",verbatimTextOutput("vit"),value = 2),
-                                   tabPanel("Anuidade",verbatimTextOutput("anuids"), value = 2),
-                                   tabPanel("Seguro Dotal",verbatimTextOutput("dots"),value = 3),
-                                   #tabPanel("Dotal Misto",tableOutput("dotm"),value = 5)
-                                   id = "abaselecionada"),
-                       plotOutput("gratabua")
-                     )
-    )
+
+    conditionalPanel(condition = "input.abaselecionada==2",
+                     selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F),
+                     # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
+                     conditionalPanel(condition = "input.anu != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))
+        ),
+
+    conditionalPanel(condition = "input.abaselecionada==3",
+                     selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F),
+                     # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
+                     numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)
+            ),
+
+    selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
+    conditionalPanel(condition = "input.tab == 3", selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
+    numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
+    numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
+    numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 )
+  ),
+  dashboardBody(
+    tabsetPanel(type = "tab",
+                tabPanel("Seguro de Vida",column(width = 6,verbatimTextOutput("segs")),value = 1),
+                #tabPanel("Seguro Vitalício",verbatimTextOutput("vit"),value = 2),
+                tabPanel("Anuidade",verbatimTextOutput("anuids"), value = 2),
+                tabPanel("Seguro Dotal",verbatimTextOutput("dots"),value = 3),
+                #tabPanel("Dotal Misto",tableOutput("dotm"),value = 5)
+                id = "abaselecionada"),
+    plotOutput("gratabua")
+  )
+)
+
     
     # Funções -----------------------------------------------------------------
     #dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
