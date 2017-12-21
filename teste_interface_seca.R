@@ -30,7 +30,10 @@ ui <- dashboardPage(
 
     selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
     # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
-    conditionalPanel(condition = "input.tab == 3", selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
+    
+    conditionalPanel(condition = "input.tab == 3", 
+                     selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
+    
     numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
     numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
     numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 )
@@ -53,15 +56,25 @@ ui <- dashboardPage(
 #dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
 
 attach(dados)
-SV_Temp <- function( i, idade, n, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
+
+SV_Temp <- function( i, idade, n, b, qx, f.desconto){ # i = taxa de juros, n = tempo, b = valor do beneficio
   px <- 1-qx
-  f.desconto <- 1/(i+1)
+  if(missing(f.desconto)){
+    f.desconto <- 1/(i+1)
+  }
   v <- f.desconto^(1:n)
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
   Ax <-  b* sum(v*pxx*qxx)
-  Ax <- round(Ax, 2)
   return (Ax)
+}
+
+VAR_Temp <- function(i, idade, n, b, qx ){ # i = taxa de juros, n = tempo, b = valor do beneficio
+  be <- 1
+  Ax <- SV_Temp(i, idade, n, be, qx)
+  Ax2 <- SV_Temp(i, idade, n, be, qx, ((1/(i+1))^2))
+  Var <- (Ax2 - (Ax)^2)* b
+  return (Var)
 }
 
 SV_Vit <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
@@ -123,12 +136,13 @@ server <- function(input, output) {
         }
       }
       if(input$seg==1){
-        a <- SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx)
+        a <- round(SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx), 2)
+        b <- round(VAR_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx), 2)
       }
       if(input$seg==2){
         a <- SV_Vit(input$tx, input$idade, input$ben, qx)
       }
-      cat('O prêmio puro único é:', a)
+      cat('O prêmio puro único é:', a, '\nA variância do prêmio é:', b)
     }else{
       cat('O período temporário está errado')
     }
