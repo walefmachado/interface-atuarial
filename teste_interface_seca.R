@@ -108,9 +108,22 @@ Dotal_Puro<-function(i, idade, n, b, qx){
 }
 
 Dotal<-function(i, idade, n, b, qx){
-      Ax<- (Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx))
-      return(Ax)
-    }
+  Ax<- (Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx))
+  return(Ax)
+}
+
+tabSelect<-function(tab, sex){
+  if(tab==1)
+    return(dados$AT_49_qx)
+  if(tab==2)
+    return(dados$AT_83_qx)
+  if(tab==3){
+    if(sex==1)
+      return(dados$AT_2000B_M_qx)
+    if(sex==2)
+      return(dados$AT_2000B_F_qx)
+  }
+}
     
     
     
@@ -121,26 +134,14 @@ server <- function(input, output) {
   
   output$segs <- renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
-      if(input$tab==1){
-        qx <- dados$AT_49_qx
-      }
-      if(input$tab==2){
-        qx <- dados$AT_83_qx
-      }
-      if(input$tab==3){
-        if(input$sex==1){
-          qx <- dados$AT_2000B_M_qx
-        }
-        if(input$sex==2){
-          qx <- dados$AT_2000B_F_qx
-        }
-      }
+      qx<-tabSelect(input$tab, input$sex)
       if(input$seg==1){
         a <- round(SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx), 2)
         b <- round(VAR_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx), 2)
       }
       if(input$seg==2){
         a <- SV_Vit(input$tx, input$idade, input$ben, qx)
+        b<-"Not ready yet"  ## b vai receber a variancia do seguro vitalicio, só coloquei aqui pra não dar erro no cat de baixo
       }
       cat('O prêmio puro único é:', a, '\nA variância do prêmio é:', b)
     }else{
@@ -150,20 +151,7 @@ server <- function(input, output) {
   
   output$anuids = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
-      if(input$tab==1){
-        qx <- dados$AT_49_qx
-      }
-      if(input$tab==2){
-        qx <- dados$AT_83_qx
-      }
-      if(input$tab==3){
-        if(input$sex==1){
-          qx <- dados$AT_2000B_M_qx
-        }
-        if(input$sex==2){
-          qx <- dados$AT_2000B_F_qx
-        }
-      }
+      qx<-tabSelect(input$tab, input$sex)
       if(input$anu==1){
         a <- Anuid(input$tx, input$idade, input$n,  input$ben, qx)
       }
@@ -181,20 +169,7 @@ server <- function(input, output) {
   
   output$dots = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
-      if(input$tab==1){
-        qx <- dados$AT_49_qx
-      }
-      if(input$tab==2){
-        qx <- dados$AT_83_qx
-      }
-      if(input$tab==3){
-        if(input$sex==1){
-          qx <- dados$AT_2000B_M_qx
-        }
-        if(input$sex==2){
-          qx <- dados$AT_2000B_F_qx
-        }
-      }
+      qx<-tabSelect(input$tab, input$sex)
       if(input$dot==1){
         a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
       }
@@ -205,28 +180,13 @@ server <- function(input, output) {
     }else{
       cat('O período temporário está errado')
     }
-  })  
-  
+  })
   output$gratabua = renderPlot({
-    if((max(dados$Idade)-input$idade) >= input$n){
-      if(input$tab==1){
-        qx <- dados$AT_49_qx
-      }
-      if(input$tab==2){
-        qx <- dados$AT_83_qx
-      }
-      if(input$tab==3){
-        if(input$sex==1){
-          qx <- dados$AT_2000B_M_qx
-        }
-        if(input$sex==2){
-          qx <- dados$AT_2000B_F_qx
-        }
-      }
-    }
+    qx<-tabSelect(input$tab, input$sex)
     plot(10000*cumprod(1 -qx), type="l", xlab="Anos", ylab="População")
   })
 }
 
 shinyApp(ui, server)
     
+
