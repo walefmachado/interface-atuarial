@@ -69,18 +69,26 @@ SV_Temp <- function( i, idade, n, b, qx, f.desconto){ # i = taxa de juros, n = t
   return (Ax)
 }
 
-VAR_Temp <- function(i, idade, n, b, qx ){ # i = taxa de juros, n = tempo, b = valor do beneficio
+VAR <- function(i, idade, n, b, qx, se){ # i = taxa de juros, n = tempo, b = valor do beneficio
   be <- 1
-  Ax <- SV_Temp(i, idade, n, be, qx)
-  Ax2 <- SV_Temp(i, idade, n, be, qx, ((1/(i+1))^2))
+  if(se==1){
+    Ax <- SV_Temp(i, idade, n, be, qx)
+    Ax2 <- SV_Temp(i, idade, n, be, qx, ((1/(i+1))^2))
+  }
+  if(se==2){
+    Ax <- SV_Vit(i, idade, be, qx)
+    Ax2 <- SV_Vit(i, idade, be, qx, ((1/(i+1))^2))
+  }
   Var <- (Ax2 - (Ax)^2)* b
   return (Var)
 }
 
-SV_Vit <- function( i, idade, b, qx){ # i = taxa de juros, n = tempo, b = valor do beneficio
+SV_Vit <- function(i, idade, b, qx, f.desconto){ # i = taxa de juros, n = tempo, b = valor do beneficio
   n <- max(Idade)-idade 
   px <- 1-qx
-  f.desconto <- 1/(i+1)
+  if(missing(f.desconto)){
+    f.desconto <- 1/(i+1)
+  }
   v <- f.desconto^(1:n)
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
@@ -137,13 +145,13 @@ server <- function(input, output) {
       qx<-tabSelect(input$tab, input$sex)
       if(input$seg==1){
         a <- round(SV_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx), 2)
-        b <- round(VAR_Temp(input$tx, round(input$idade, 0), input$n, input$ben, qx), 2)
+        b <- round(VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg), 2)
       }
       if(input$seg==2){
         a <- SV_Vit(input$tx, input$idade, input$ben, qx)
-        b<-"Not ready yet"  ## b vai receber a variancia do seguro vitalicio, só coloquei aqui pra não dar erro no cat de baixo
+        b <- round(VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg), 2)  ## b vai receber a variancia do seguro vitalicio, só coloquei aqui pra não dar erro no cat de baixo
       }
-      cat('O prêmio puro único é:', a, '\nA variância do prêmio é:', b)
+      cat('O prêmio puro único é:', a, '\nA variância do prêmio é:', b, '\nO desvio padrão é:', round(sqrt(b), 2))
     }else{
       cat('O período temporário está errado')
     }
