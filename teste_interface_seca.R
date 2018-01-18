@@ -21,11 +21,11 @@ ui <- dashboardPage(
                      conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)) ),
 
     conditionalPanel(condition = "input.abaselecionada==2",
-                     selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F),
+                     selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 3, "Anuidade Vitalícia"=4) ,multiple = F),
                      conditionalPanel(condition = "input.anu != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
 
     conditionalPanel(condition = "input.abaselecionada==3",
-                     selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F),
+                     selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 4, "Dotal Misto" = 5) ,multiple = F),
                      numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
 
     selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
@@ -69,20 +69,6 @@ SV_Temp <- function( i, idade, n, b, qx, f.desconto){ # i = taxa de juros, n = t
   return (Ax)
 }
 
-VAR <- function(i, idade, n, b, qx, se){ # i = taxa de juros, n = tempo, b = valor do beneficio
-  be <- 1
-  if(se==1){
-    Ax <- SV_Temp(i, idade, n, be, qx)
-    Ax2 <- SV_Temp(i, idade, n, be, qx, ((1/(i+1))^2))
-  }
-  if(se==2){
-    Ax <- SV_Vit(i, idade, be, qx)
-    Ax2 <- SV_Vit(i, idade, be, qx, ((1/(i+1))^2))
-  }
-  Var <- (Ax2 - (Ax)^2)* b
-  return (Var)
-}
-
 SV_Vit <- function(i, idade, b, qx, f.desconto){ # i = taxa de juros, n = tempo, b = valor do beneficio
   n <- max(Idade)-idade 
   px <- 1-qx
@@ -97,30 +83,49 @@ SV_Vit <- function(i, idade, b, qx, f.desconto){ # i = taxa de juros, n = tempo,
   return (Ax)
 }
 
+VAR <- function(i, idade, n, b, qx, se){ # i = taxa de juros, n = tempo, b = valor do beneficio
+  be <- 1
+  if(se==1){
+    Ax <- SV_Temp(i, idade, n, be, qx)
+    Ax2 <- SV_Temp(i, idade, n, be, qx, ((1/(i+1))^2))
+  }
+  if(se==2){
+    Ax <- SV_Vit(i, idade, be, qx)
+    Ax2 <- SV_Vit(i, idade, be, qx, ((1/(i+1))^2))
+  }
+  # if(se==3){
+  #   Ax <- Anuid(i, idade, n , be, qx)
+  #   Ax2 <- Anuid(i, idade, n , be, qx, ((1/(i+1))^2))
+  # }
+  Var <- (Ax2 - (Ax)^2)* b
+  return (Var)
+}
+
 # Verificar o cáculo Pedro
-Anuid = function( i, idade, n , b, qx){ # i= taxa de juros, n= período, b = benefício
-  
+Anuid <- function(i, idade, n , b, qx, f.desconto){ # i= taxa de juros, n= período, b = benefício
   px <- 1-qx
-  f.desconto <- 1/(i+1)
+  if(missing(f.desconto)){
+    f.desconto <- 1/(i+1)
+  }
   v <- f.desconto^(1:n)
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  ax <- round((b* sum(v*pxx)),2)
+  ax <- (b* sum(v*pxx))
   return(ax)
 }
 
-Dotal_Puro<-function(i, idade, n, b, qx){
+Dotal_Puro <- function(i, idade, n, b, qx){
   px <- 1-qx
   v <- 1/(i+1)
   Ax <-  b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
   return(Ax)
 }
 
-Dotal<-function(i, idade, n, b, qx){
+Dotal <- function(i, idade, n, b, qx){
   Ax<- (Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx))
   return(Ax)
 }
 
-tabSelect<-function(tab, sex){
+tabSelect <- function(tab, sex){
   if(tab==1)
     return(dados$AT_49_qx)
   if(tab==2)
@@ -132,9 +137,12 @@ tabSelect<-function(tab, sex){
       return(dados$AT_2000B_F_qx)
   }
 }
-    
-    
-    
+
+graphics <- function(dados, qx){
+  w <- ggplot(dados, aes(Idade, (10000*cumprod(1 -qx)))) + geom_line(size = 1)  + 
+    scale_color_brewer(palette = "") + labs(title='', x='Anos', y='População')
+  w
+} 
 
 # Server ------------------------------------------------------------------
 
@@ -148,8 +156,8 @@ server <- function(input, output) {
         b <- round(VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg), 2)
       }
       if(input$seg==2){
-        a <- SV_Vit(input$tx, input$idade, input$ben, qx)
-        b <- round(VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg), 2)  ## b vai receber a variancia do seguro vitalicio, só coloquei aqui pra não dar erro no cat de baixo
+        a <- round(SV_Vit(input$tx, input$idade, input$ben, qx), 2)
+        b <- round(VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg), 2)  
       }
       cat('O prêmio puro único é:', a, '\nA variância do prêmio é:', b, '\nO desvio padrão é:', round(sqrt(b), 2))
     }else{
@@ -160,16 +168,17 @@ server <- function(input, output) {
   output$anuids = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
-      if(input$anu==1){
-        a <- Anuid(input$tx, input$idade, input$n,  input$ben, qx)
+      if(input$anu==3){
+        a <- round(Anuid(input$tx, input$idade, input$n,  input$ben, qx), 2)
+        # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
       }
-      # if(input$anu==2){
+      # if(input$anu==3){                                                                       # Ver o número do input$anu==3  
       #   a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
       # }
       # if(input$anu==3){
       #   a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       # }
-      cat('O prêmio puro único é:', a)
+      cat('O prêmio puro único é:', a) 
     }else{
       cat('O período temporário está errado')
     }
@@ -178,10 +187,10 @@ server <- function(input, output) {
   output$dots = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
-      if(input$dot==1){
+      if(input$dot==4){
         a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
       }
-      if(input$dot==2){
+      if(input$dot==5){
         a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       }
       cat('O prêmio puro único é:', a)
@@ -191,7 +200,7 @@ server <- function(input, output) {
   })
   output$gratabua = renderPlot({
     qx<-tabSelect(input$tab, input$sex)
-    plot(10000*cumprod(1 -qx), type="l", xlab="Anos", ylab="População")
+    graphics(dados, qx)
   })
 }
 
