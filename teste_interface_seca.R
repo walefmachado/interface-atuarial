@@ -146,7 +146,30 @@ graphics <- function(dados, qx){
 
 # Server ------------------------------------------------------------------
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  observe({  #Função usa dados da URL pra mudar parametros dentro do código ex: 127.0.0.1:6510/?abaselecionada=1&seg=2
+    query <- parseQueryString(session$clientData$url_search)
+    
+    for (i in 1:(length(reactiveValuesToList(input)))) {
+      nameval = names(reactiveValuesToList(input)[i])
+      valuetoupdate = query[[nameval]]
+      
+      if (!is.null(query[[nameval]])) {
+        if (nameval=="abaselecionada"){
+          updateTabsetPanel(session, "abaselecionada",
+                            selected = valuetoupdate)
+        }
+        if (is.na(as.numeric(valuetoupdate))) {
+          updateTextInput(session, nameval, value = valuetoupdate)
+        }
+        else {
+          updateTextInput(session, nameval, value = as.numeric(valuetoupdate))
+        }
+      }
+      
+    }
+    
+  })
   
   output$segs <- renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
