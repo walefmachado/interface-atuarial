@@ -10,6 +10,7 @@ library(ggplot2)
 
 local <- paste0(getwd(), '/tábuas_leitura_R.txt')
 dados <- read.table(local, h=T)
+jsfile <- paste0(getwd(), '/solver.js')
 # dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
 ui <- dashboardPage(
   dashboardHeader(title = "Cálculo Atuarial"),
@@ -36,7 +37,11 @@ ui <- dashboardPage(
     
     numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
     numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
-    numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 )
+    numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 ),
+    conditionalPanel(condition = "input.abaselecionada==8",
+                     checkboxInput(inputId = "fecha", label = "fecha"))
+   
+    #numericInput("fecha", "fecha", min = 0, max = 1, value = 0)
   ),
   dashboardBody(
     tabsetPanel(type = "tab",
@@ -154,7 +159,7 @@ server <- function(input, output, session) {
       nameval = names(reactiveValuesToList(input)[i])
       valuetoupdate = query[[nameval]]
       
-      if (!is.null(query[[nameval]])) {
+      if ((!is.null(query[[nameval]]))&(!input$fecha)) {
         if (nameval=="abaselecionada"){
           updateTabsetPanel(session, "abaselecionada",
                             selected = valuetoupdate)
@@ -168,6 +173,10 @@ server <- function(input, output, session) {
       }
       
     }
+    
+    
+    #Aqui
+    # tags$head(tags$script(src = jsfile))
     
   })
   
