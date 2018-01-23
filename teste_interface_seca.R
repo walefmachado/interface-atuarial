@@ -3,14 +3,14 @@
 library(shiny)
 library(shinydashboard)
 library(ggplot2)
-
+library(plotly)
+library(devtools)
 
 
 # UI ----------------------------------------------------------------------
 
 local <- paste0(getwd(), '/tábuas_leitura_R.txt')
 dados <- read.table(local, h=T)
-jsfile <- paste0(getwd(), '/solver.js')
 # dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
 ui <- dashboardPage(
   dashboardHeader(title = "Cálculo Atuarial"),
@@ -19,7 +19,7 @@ ui <- dashboardPage(
 
     conditionalPanel(condition = "input.abaselecionada==1",
                      selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2) ,multiple = F),
-                     conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)) ),
+                     conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
 
     conditionalPanel(condition = "input.abaselecionada==2",
                      selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 3, "Anuidade Vitalícia"=4) ,multiple = F),
@@ -38,21 +38,23 @@ ui <- dashboardPage(
     numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
     numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
     numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 ),
-    conditionalPanel(condition = "input.abaselecionada==8",
+    conditionalPanel(condition = "input.abaselecionada==666", # \m/
                      checkboxInput(inputId = "fecha", label = "fecha"))
    
     #numericInput("fecha", "fecha", min = 0, max = 1, value = 0)
   ),
   dashboardBody(
     tabsetPanel(type = "tab",
-                tabPanel("Seguro de Vida", icon=icon("user"),column(width = 6,verbatimTextOutput("segs")),value = 1),
+                tabPanel("Seguro de Vida", icon=icon("user"),verbatimTextOutput("segs"),value = 1),
                 #tabPanel("Seguro Vitalício",verbatimTextOutput("vit"),value = 2),
                 tabPanel("Anuidade", icon=icon("cubes"),verbatimTextOutput("anuids"), value = 2),
                 tabPanel("Seguro Dotal", icon=icon("user-o"),verbatimTextOutput("dots"),value = 3),
                 #tabPanel("Dotal Misto",tableOutput("dotm"),value = 5)
                 id = "abaselecionada"),
-    plotOutput("gratabua")
-  )
+    #plotOutput("gratabua")
+    plotlyOutput("plot"),
+    verbatimTextOutput("event")
+    )
 )
 
 
@@ -144,10 +146,10 @@ tabSelect <- function(tab, sex){
 }
 
 graphics <- function(dados, qx){
-  w <- ggplot(dados, aes(Idade, (10000*cumprod(1 -qx)))) + geom_line(size = 1)  + 
+  w <- ggplot(dados, aes(Idade, (10000*cumprod(1 -qx)))) + geom_line(size = 1)  +
     scale_color_brewer(palette = "") + labs(title='', x='Anos', y='População')
   w
-} 
+}
 
 # Server ------------------------------------------------------------------
 
@@ -173,11 +175,6 @@ server <- function(input, output, session) {
       }
       
     }
-    
-    
-    #Aqui
-    # tags$head(tags$script(src = jsfile))
-    
   })
   
   output$segs <- renderPrint({
@@ -230,10 +227,23 @@ server <- function(input, output, session) {
       cat('O período temporário está errado')
     }
   })
-  output$gratabua = renderPlot({
+  # output$gratabua = renderPlot({
+  #   qx<-tabSelect(input$tab, input$sex)
+  #   graphics(dados, qx)
+  # })
+
+  output$plot <- renderPlotly({
+    ti <- "título"
     qx<-tabSelect(input$tab, input$sex)
-    graphics(dados, qx)
+    ggplot(dados, aes(Idade, (10000*cumprod(1 -qx)))) + geom_line(size = 1)  +
+      scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
   })
+
+  output$event <- renderPrint({
+    d <- event_data("plotly_hover")
+    if (is.null(d)) "Hover on a point!" else d
+  })
+
 }
 
 shinyApp(ui, server)
