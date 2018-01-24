@@ -1,10 +1,8 @@
 # Teste Interface seca. Teste
-
 library(shiny)
 library(shinydashboard)
 library(ggplot2)
 library(plotly)
-library(devtools)
 
 
 # UI ----------------------------------------------------------------------
@@ -22,11 +20,11 @@ ui <- dashboardPage(
                      conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
 
     conditionalPanel(condition = "input.abaselecionada==2",
-                     selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 3, "Anuidade Vitalícia"=4) ,multiple = F),
+                     selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F),
                      conditionalPanel(condition = "input.anu != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
 
     conditionalPanel(condition = "input.abaselecionada==3",
-                     selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 4, "Dotal Misto" = 5) ,multiple = F),
+                     selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F),
                      numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
 
     selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
@@ -145,12 +143,6 @@ tabSelect <- function(tab, sex){
   }
 }
 
-graphics <- function(dados, qx){
-  w <- ggplot(dados, aes(Idade, (10000*cumprod(1 -qx)))) + geom_line(size = 1)  +
-    scale_color_brewer(palette = "") + labs(title='', x='Anos', y='População')
-  w
-}
-
 # Server ------------------------------------------------------------------
 
 server <- function(input, output, session) {
@@ -197,11 +189,11 @@ server <- function(input, output, session) {
   output$anuids = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
-      if(input$anu==3){
+      if(input$anu==1){
         a <- round(Anuid(input$tx, input$idade, input$n,  input$ben, qx), 2)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
       }
-      # if(input$anu==3){                                                                       # Ver o número do input$anu==3  
+      # if(input$anu==2){                                                                        
       #   a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
       # }
       # if(input$anu==3){
@@ -216,10 +208,10 @@ server <- function(input, output, session) {
   output$dots = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
-      if(input$dot==4){
+      if(input$dot==1){
         a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
       }
-      if(input$dot==5){
+      if(input$dot==2){
         a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       }
       cat('O prêmio puro único é:', a)
@@ -227,10 +219,7 @@ server <- function(input, output, session) {
       cat('O período temporário está errado')
     }
   })
-  # output$gratabua = renderPlot({
-  #   qx<-tabSelect(input$tab, input$sex)
-  #   graphics(dados, qx)
-  # })
+  
 
   output$plot <- renderPlotly({
     ti <- "título"
@@ -241,7 +230,7 @@ server <- function(input, output, session) {
 
   output$event <- renderPrint({
     d <- event_data("plotly_hover")
-    if (is.null(d)) "Hover on a point!" else d
+    if (is.null(d)) "Passe o mouse sobre um ponto!" else d
   })
 
 }
