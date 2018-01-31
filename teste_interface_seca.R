@@ -9,12 +9,12 @@ library(plotly)
 
 local <- paste0(getwd(), '/tábuas_leitura_R.txt')
 dados <- read.table(local, h=T)
-# dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
-ui <- dashboardPage(
-  dashboardHeader(title = "Cálculo Atuarial"),
-  dashboardSidebar(
-    
 
+ui <- dashboardPage(
+  dashboardHeader(title = "Cálculo Atuarial"), #Cabeçalho
+  dashboardSidebar( #Menu Lateral
+    
+          #Inputs condicionados às abas que se encontram no corpo do código
     conditionalPanel(condition = "input.abaselecionada==1",
                      selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2) ,multiple = F),
                      conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
@@ -27,8 +27,10 @@ ui <- dashboardPage(
                      selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F),
                      numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
 
+        #Inputs gerais, aparecem em todos os produtos
     selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
-    # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
+
+            # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
     
     conditionalPanel(condition = "input.tab == 3", 
                      selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
@@ -39,26 +41,24 @@ ui <- dashboardPage(
     conditionalPanel(condition = "input.abaselecionada==666", # \m/
                      checkboxInput(inputId = "fecha", label = "fecha"))
    
-    #numericInput("fecha", "fecha", min = 0, max = 1, value = 0)
+
   ),
-  dashboardBody(
-    tabsetPanel(type = "tab",
+  dashboardBody( #Corpo da página
+        #Abas usadas para organizar a página por produtos e chamar a saída respectiva para o mesmo
+    tabsetPanel(type = "tab", 
                 tabPanel("Seguro de Vida", icon=icon("user"),verbatimTextOutput("segs"),value = 1),
-                #tabPanel("Seguro Vitalício",verbatimTextOutput("vit"),value = 2),
                 tabPanel("Anuidade", icon=icon("cubes"),verbatimTextOutput("anuids"), value = 2),
                 tabPanel("Seguro Dotal", icon=icon("user-o"),verbatimTextOutput("dots"),value = 3),
-                #tabPanel("Dotal Misto",tableOutput("dotm"),value = 5)
+
                 id = "abaselecionada"),
-    #plotOutput("gratabua")
-    plotlyOutput("plot"),
-    verbatimTextOutput("event")
+
+    plotlyOutput("plot"), #Saída do gráfico definida pelo UI
+    verbatimTextOutput("event") #Saída
     )
 )
 
 
-# Funções -----------------------------------------------------------------
-#dados <- read.table('/home/walef/Dropbox/SECA Programação/tábuas_leitura_R.txt', h=T)
-#dados <- read.table('C:/Users/Yagho Note/interface-atuarial/tábuas_leitura_R.txt', h=T)
+#Funções
 
 attach(dados)
 
@@ -107,6 +107,7 @@ VAR <- function(i, idade, n, b, qx, se){ # i = taxa de juros, n = tempo, b = val
 }
 
 # Verificar o cáculo Pedro
+#Anuidade temporária
 Anuid <- function(i, idade, n , b, qx, f.desconto){ # i= taxa de juros, n= período, b = benefício
   px <- 1-qx
   if(missing(f.desconto)){
@@ -124,13 +125,13 @@ Dotal_Puro <- function(i, idade, n, b, qx){
   Ax <-  b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
   return(Ax)
 }
-
+#Dotal Misto
 Dotal <- function(i, idade, n, b, qx){
   Ax<- (Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx))
   return(Ax)
 }
-
-tabSelect <- function(tab, sex){
+#Função de seleção de tábua de vida, usa os inputs como parametros e retorna a tábua desejada
+tabSelect <- function(tab, sex){ # tab=input$tab e sex=input$sex
   if(tab==1)
     return(dados$AT_49_qx)
   if(tab==2)
@@ -169,6 +170,7 @@ server <- function(input, output, session) {
     }
   })
   
+  #Saída caso a aba selecionada seja a de Seguros de Vida
   output$segs <- renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
@@ -186,6 +188,7 @@ server <- function(input, output, session) {
     }
   })
   
+  #Saída caso a aba selecionada seja a de Anuidades
   output$anuids = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
@@ -193,34 +196,31 @@ server <- function(input, output, session) {
         a <- round(Anuid(input$tx, input$idade, input$n,  input$ben, qx), 2)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
       }
-      # if(input$anu==2){                                                                        
-      #   a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
-      # }
-      # if(input$anu==3){
-      #   a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
-      # }
       cat('O prêmio puro único é:', a) 
     }else{
       cat('O período temporário está errado')
     }
   })
   
+  #Saída caso a aba selecionada seja a dos Dotais
   output$dots = renderPrint({
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
       if(input$dot==1){
         a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
+        nome<-"Dotal Puro"
+        periodo<-input$n
       }
       if(input$dot==2){
         a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       }
-      cat('O prêmio puro único é:', a)
+      cat('Para o produto', nome, '\n O prêmio puro único é:', a, '\n Tendo como periodo', periodo)
     }else{
       cat('O período temporário está errado')
     }
   })
   
-
+  #Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
   output$plot <- renderPlotly({
     ti <- "título"
     qx<-tabSelect(input$tab, input$sex)
