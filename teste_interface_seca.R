@@ -3,6 +3,7 @@ library(shiny)
 library(shinydashboard)
 library(ggplot2)
 library(plotly)
+library(reshape2)
 
 
 # UI ----------------------------------------------------------------------
@@ -144,6 +145,20 @@ tabSelect <- function(tab, sex){ # tab=input$tab e sex=input$sex
   }
 }
 
+
+# Cria colunas com a população de uma coorte hipotética para cada tábua de vida para utilização no gráfico
+dados$pop_at_49 <- (10000*cumprod(1 - dados$AT_49_qx))
+dados$pop_at_83 <- (10000*cumprod(1 - dados$AT_83_qx))
+dados$pop_at_2000_m <- (10000*cumprod(1 - dados$AT_2000B_M_qx))
+dados$pop_at_2000_f <- (10000*cumprod(1 - dados$AT_2000B_F_qx))
+
+dados_g <- data.frame(dados[,6:9])
+dados_g$Idade <- dados$Idade
+names(dados_g)
+dados_long <- melt(dados_g, id="Idade")
+colnames(dados_long)[colnames(dados_long)=="variable"] <- "Tábua"
+colnames(dados_long)[colnames(dados_long)=="value"] <- "População"
+
 # Server ------------------------------------------------------------------
 
 server <- function(input, output, session) {
@@ -223,8 +238,8 @@ server <- function(input, output, session) {
   #Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
   output$plot <- renderPlotly({
     ti <- "título"
-    qx<-tabSelect(input$tab, input$sex)
-    ggplot(dados, aes(Idade, (10000*cumprod(1 -qx)))) + geom_line(size = 1)  +
+    ggplot(data=dados_long,
+           aes(x=Idade, y=População, colour= Tábua)) + geom_line() +
       scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
   })
 
