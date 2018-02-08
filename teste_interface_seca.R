@@ -55,7 +55,7 @@ ui <- dashboardPage(
                 
                 id = "abaselecionada"),
     
-    plotlyOutput("plot"), #Saída do gráfico definida pelo UI
+    #plotlyOutput("plot"), #Saída do gráfico definida pelo UI
     verbatimTextOutput("event") #Saída
   )
 )
@@ -235,12 +235,12 @@ server <- function(input, output, session) {
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab, input$sex)
       if(input$anu==1){
-        a <- round(Anuid(input$tx, input$idade, input$n,  input$ben, qx), 2)
+        a <- round(Anuid(input$tx, input$idade, input$n,  input$ben, qx, 0), 2)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
       }
 
       if(input$anu==2){
-        a <- round(Anuivit(input$tx, input$idade, input$n,  input$ben, qx), 2)
+        a <- round(Anuidvit(input$tx, input$idade,  input$ben, qx, 0), 2)
         
       }
       
@@ -274,17 +274,17 @@ server <- function(input, output, session) {
   })
   
   #Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
-  output$plot <- renderPlotly({
-    ti <- "título"
-    ggplot(data=dados_long,
-           aes(x=Idade, y=População, colour= Tábua)) + geom_line() +
-      scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
-  })
-  
-  output$event <- renderPrint({
-    d <- event_data("plotly_hover")
-    if (is.null(d)) "Passe o mouse sobre um ponto!" else d
-  })
+  # output$plot <- renderPlotly({
+  #   ti <- "título"
+  #   ggplot(data=dados_long,
+  #          aes(x=Idade, y=População, colour= Tábua)) + geom_line() +
+  #     scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
+  # })
+  # 
+  # output$event <- renderPrint({
+  #   d <- event_data("plotly_hover")
+  #   if (is.null(d)) "Passe o mouse sobre um ponto!" else d
+  # })
   
 
     
