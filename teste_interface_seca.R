@@ -17,17 +17,15 @@ ui <- dashboardPage(
     
     #Inputs condicionados às abas que se encontram no corpo do código
     conditionalPanel(condition = "input.abaselecionada==1",
-                     selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2) ,multiple = F),
-                     conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
+                     selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2) ,multiple = F)),
     
     conditionalPanel(condition = "input.abaselecionada==2",
-                     selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F),
-                     conditionalPanel(condition = "input.anu != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
-    
+                     selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F)),
+                                     
     conditionalPanel(condition = "input.abaselecionada==3",
-                     selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F),
-                     numericInput("n", "Período (n)", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
+                     selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F)),
     
+    conditionalPanel(condition = "(!((input.seg == 2 && input.abaselecionada== 1) || (input.abaselecionada==2 && input.anu == 2)))", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
     checkboxInput(inputId = "diferido", label = "Diferido"),
     conditionalPanel(condition = "input.diferido",
                      numericInput("m", "Período de diferimento (m)", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
@@ -260,14 +258,15 @@ server <- function(input, output, session) {
       if(input$dot==1){
         a <- Dotal_Puro(input$tx, input$idade , input$n, input$ben, qx)
         nome<-"Dotal Puro"
-        periodo<-input$n
       }
       if(input$dot==2){
         a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
+        nome<-"Dotal Misto"
       }
+      periodo<-input$n
       if (input$diferido)
         a<-Diferido(input$tx, input$idade, qx, a,input$m )
-      cat('Para o produto', nome, '\n O prêmio puro único é:', a, '\n Tendo como periodo', periodo)
+      cat('Produto:', nome, '\nO prêmio puro único:', a, '\nPeriodo(n):', periodo)
     }else{
       cat('O período temporário está errado')
     }
