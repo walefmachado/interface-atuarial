@@ -109,16 +109,34 @@ VAR <- function(i, idade, n, b, qx, se){ # i = taxa de juros, n = tempo, b = val
 
 # Verificar o cáculo Pedro
 #Anuidade temporária
-Anuid <- function(i, idade, n , b, qx, f.desconto){ # i= taxa de juros, n= período, b = benefício
+#df: 0 para postecipado e 1 para antecipado
+Anuid <- function(i, idade, n , b, qx, df,f.desconto){ # i= taxa de juros, n= período, b = benefício
   px <- 1-qx
   if(missing(f.desconto)){
     f.desconto <- 1/(i+1)
   }
-  v <- f.desconto^(1:n)
+  v <- f.desconto^((1-df):(n-df))
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
   ax <- (b* sum(v*pxx))
   return(ax)
 }
+
+
+
+#Anuidade vitalícia
+#df: 0 para postecipado e 1 para antecipado
+Anuidvit <- function(i, idade,b, qx, df, f.desconto){ # i= taxa de juros, n= período, b = benefício
+  n <- max(Idade)-idade 
+  px <- 1-qx
+  if(missing(f.desconto)){
+    f.desconto <- 1/(i+1)
+  }
+  v <- f.desconto^((1- df):(n-df))
+  pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+  ax <- (b* sum(v*pxx))
+  return(ax)
+}
+
 
 Dotal_Puro <- function(i, idade, n, b, qx){
   px <- 1-qx
@@ -211,6 +229,11 @@ server <- function(input, output, session) {
         a <- round(Anuid(input$tx, input$idade, input$n,  input$ben, qx), 2)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
       }
+      if(input$anu==2){
+        a <- round(Anuivit(input$tx, input$idade, input$n,  input$ben, qx), 2)
+        
+      }
+      
       cat('O prêmio puro único é:', a) 
     }else{
       cat('O período temporário está errado')
