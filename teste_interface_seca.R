@@ -15,24 +15,26 @@ ui <- dashboardPage(
   dashboardHeader(title = "Cálculo Atuarial"), #Cabeçalho
   dashboardSidebar( #Menu Lateral
     
-          #Inputs condicionados às abas que se encontram no corpo do código
+    #Inputs condicionados às abas que se encontram no corpo do código
     conditionalPanel(condition = "input.abaselecionada==1",
                      selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2) ,multiple = F),
                      conditionalPanel(condition = "input.seg != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
-
+    
     conditionalPanel(condition = "input.abaselecionada==2",
                      selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F),
                      conditionalPanel(condition = "input.anu != 2", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1))),
-
+    
     conditionalPanel(condition = "input.abaselecionada==3",
                      selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F),
-                     numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
-
-        #Inputs gerais, aparecem em todos os produtos
-    selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
-
-            # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
+                     numericInput("n", "Período (n)", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
     
+    checkboxInput(inputId = "diferido", label = "Diferido"),
+    conditionalPanel(condition = "input.diferido",
+                     numericInput("m", "Período de diferimento (m)", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
+    #Inputs gerais, aparecem em todos os produtos
+    selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
+    
+    # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
     conditionalPanel(condition = "input.tab == 3", 
                      selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
     
@@ -41,21 +43,21 @@ ui <- dashboardPage(
     numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 ),
     conditionalPanel(condition = "input.abaselecionada==666", # \m/
                      checkboxInput(inputId = "fecha", label = "fecha"))
-   
-
+    
+    
   ),
   dashboardBody( #Corpo da página
-        #Abas usadas para organizar a página por produtos e chamar a saída respectiva para o mesmo
+    #Abas usadas para organizar a página por produtos e chamar a saída respectiva para o mesmo
     tabsetPanel(type = "tab", 
                 tabPanel("Seguro de Vida", icon=icon("user"),verbatimTextOutput("segs"),value = 1),
                 tabPanel("Anuidade", icon=icon("cubes"),verbatimTextOutput("anuids"), value = 2),
                 tabPanel("Seguro Dotal", icon=icon("user-o"),verbatimTextOutput("dots"),value = 3),
-
+                
                 id = "abaselecionada"),
-
+    
     plotlyOutput("plot"), #Saída do gráfico definida pelo UI
     verbatimTextOutput("event") #Saída
-    )
+  )
 )
 
 
@@ -149,6 +151,11 @@ Dotal <- function(i, idade, n, b, qx){
   Ax<- (Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx))
   return(Ax)
 }
+
+Diferido<- function(i, idade, qx, p, m){
+  Dx<-p*Dotal_Puro(i, idade, m, 1, qx)
+  return(Dx)
+}
 #Função de seleção de tábua de vida, usa os inputs como parametros e retorna a tábua desejada
 tabSelect <- function(tab, sex){ # tab=input$tab e sex=input$sex
   if(tab==1)
@@ -215,6 +222,8 @@ server <- function(input, output, session) {
         a <- round(SV_Vit(input$tx, input$idade, input$ben, qx), 2)
         b <- round(VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg), 2)  
       }
+      if (input$diferido)
+        a<-Diferido(input$tx, input$idade, qx, a,input$m )
       cat('O prêmio puro único é:', a, '\nA variância do prêmio é:', b, '\nO desvio padrão é:', round(sqrt(b), 2))
     }else{
       cat('O período temporário está errado')
@@ -229,10 +238,14 @@ server <- function(input, output, session) {
         a <- round(Anuid(input$tx, input$idade, input$n,  input$ben, qx), 2)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
       }
+
       if(input$anu==2){
         a <- round(Anuivit(input$tx, input$idade, input$n,  input$ben, qx), 2)
         
       }
+      
+      if (input$diferido)
+        a<-Diferido(input$tx, input$idade, qx, a,input$m )
       
       cat('O prêmio puro único é:', a) 
     }else{
@@ -252,6 +265,8 @@ server <- function(input, output, session) {
       if(input$dot==2){
         a <- Dotal(input$tx, input$idade, input$n, input$ben, qx)
       }
+      if (input$diferido)
+        a<-Diferido(input$tx, input$idade, qx, a,input$m )
       cat('Para o produto', nome, '\n O prêmio puro único é:', a, '\n Tendo como periodo', periodo)
     }else{
       cat('O período temporário está errado')
@@ -265,14 +280,15 @@ server <- function(input, output, session) {
            aes(x=Idade, y=População, colour= Tábua)) + geom_line() +
       scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
   })
-
+  
   output$event <- renderPrint({
     d <- event_data("plotly_hover")
     if (is.null(d)) "Passe o mouse sobre um ponto!" else d
   })
+  
 
+    
 }
 
 shinyApp(ui, server)
-    
 
