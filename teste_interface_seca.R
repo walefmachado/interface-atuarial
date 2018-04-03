@@ -61,43 +61,43 @@
       #                           font-family: "Times New Roman", Times, serif;
       #                           color: #039be5;
       #                           }
-      #                           
+      #
       #                           /* logo when hovered */
       #                           .skin-blue .main-header .logo:hover {
       #                           background-color: #4fc3f7;
       #                           }
-      #                           
+      #
       #                           /* navbar (rest of the header) */
       #                           .skin-blue .main-header .navbar {
       #                           background-color: #fafafa;
-      #                           }        
-      #                           
+      #                           }
+      #
       #                           /* main sidebar */
       #                           .skin-blue .main-sidebar {
       #                           background-color: #212121;
       #                           }
-      #                           
+      #
       #                           /* active selected tab in the sidebarmenu */
       #                           .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
       #                           background-color: #4fc3f7;
       #                           }
-      #                           
+      #
       #                           /* other links in the sidebarmenu */
       #                           .skin-blue .main-sidebar .sidebar .sidebar-menu a{
       #                           background-color: #00ff00;
       #                           color: #000000;
       #                           }
-      #                           
+      #
       #                           /* other links in the sidebarmenu when hovered */
       #                           .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
       #                           background-color: #ff69b4;
       #                           }
-      #                           /* toggle button when hovered  */                    
+      #                           /* toggle button when hovered  */
       #                           .skin-blue .main-header .navbar .sidebar-toggle:hover{
       #                           background-color: #4fc3f7;
       #                           }
       #                           '))),
-      
+
       
       
       
@@ -224,6 +224,18 @@
         return(dados$AT_2000B_F_qx)
     }
   }
+  tabName <- function(tab, sex){ # tab=input$tab e sex=input$sex
+    if(tab==1)
+      return("AT_49")
+    if(tab==2)
+      return("AT_83")
+    if(tab==3){
+      if(sex==1)
+        return("AT_2000B Masculino")
+      if(sex==2)
+        return("AT_2000B Feminino")
+    }
+  }
   
   
   # Cria colunas com a população de uma coorte hipotética para cada tábua de vida para utilização no gráfico
@@ -283,7 +295,7 @@
         }
         if (input$diferido)
           a<-Diferido(input$tx, input$idade, qx, a,input$m )
-        cat('O prêmio puro único é:', a, '\nA variância do prêmio é:', b, '\nO desvio padrão é:', round(sqrt(b), 2))
+        cat('O prêmio puro único é:', a,'\nIdade: ', input$idade, '\nPeríodo: ', n, '\nBenefício: ', input$ben, '\nTábua: ', input$tab, '\nA variância do prêmio é:', b, '\nO desvio padrão é:', round(sqrt(b), 2))
       }else{
         cat('O período temporário está errado')
       }
@@ -310,7 +322,7 @@
         if (input$diferido)
           a<-Diferido(input$tx, input$idade, qx, a,input$m )
         
-        cat('O prêmio puro único é:', a) 
+        cat('O prêmio puro único é:', a, '\nTaxa de juros: ', input$tx, '\nIdade: ', input$idade, '\nBenefício', input$ben, '\nTábua utilizada: ', input$tab ) 
       }else{
         cat('O período temporário está errado')
       }
@@ -331,10 +343,10 @@
           a <- Dotal(input$tx, idade, input$n, input$ben, qx)
           nome<-"Dotal Misto"
         }
-        periodo<-input$n
+        periodo<-input$n #Checar
         if (input$diferido)
           a<-Diferido(input$tx, input$idade, qx, a,input$m )
-        cat('Produto:', nome, '\nO prêmio puro único:', a, '\nPeriodo(n):', periodo)
+        cat('Produto:', nome, '\nO prêmio puro único:', a, '\nPeriodo(n):', periodo, '\nTaxa de juros: ', input$tx, '\nBenefício', input$ben, '\nTábua: ', input$tab )
       }else{
         cat('O período temporário está errado')
       }
