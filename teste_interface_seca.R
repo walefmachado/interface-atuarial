@@ -211,6 +211,15 @@
     Dx<-p*Dotal_Puro(i, idade, m, 1, qx)
     return(Dx)
   }
+  
+  #Premio nivelado
+  #df: 0 para postecipado e 1 para antecipado
+  Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagamento, usar um N especifico como input
+    P<-((Anuid(i, idade, n , 1, qx, df))/a)*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto, qx=tabua
+    return(P)                                  #fr é o fator de fracionamento do premio, input a ser criado****
+  }
+  
+
   #Função de seleção de tábua de vida, usa os inputs como parametros e retorna a tábua desejada
   tabSelect <- function(tab, sex){ # tab=input$tab e sex=input$sex
     if(tab==1)
@@ -295,7 +304,13 @@
         }
         if (input$diferido)
           a<-Diferido(input$tx, input$idade, qx, a,input$m )
-        cat('O prêmio puro único é:', a,'\nIdade: ', input$idade, '\nPeríodo: ', n, '\nBenefício: ', input$ben, '\nTábua: ', input$tab, '\nA variância do prêmio é:', b, '\nO desvio padrão é:', round(sqrt(b), 2))
+        cat('O prêmio puro único é:', a,
+            '\nIdade: ', input$idade, 
+            '\nPeríodo: ', input$n, 
+            '\nBenefício: ', input$ben, 
+            '\nTábua: ', input$tab, 
+            '\nA variância do prêmio é:', b, 
+            '\nO desvio padrão é:', round(sqrt(b), 2))
       }else{
         cat('O período temporário está errado')
       }
@@ -322,7 +337,11 @@
         if (input$diferido)
           a<-Diferido(input$tx, input$idade, qx, a,input$m )
         
-        cat('O prêmio puro único é:', a, '\nTaxa de juros: ', input$tx, '\nIdade: ', input$idade, '\nBenefício', input$ben, '\nTábua utilizada: ', input$tab ) 
+        cat('O prêmio puro único é:', a, 
+            '\nTaxa de juros: ', input$tx, 
+            '\nIdade: ', input$idade, 
+            '\nBenefício', input$ben, 
+            '\nTábua utilizada: ', input$tab ) 
       }else{
         cat('O período temporário está errado')
       }
@@ -346,7 +365,12 @@
         periodo<-input$n #Checar
         if (input$diferido)
           a<-Diferido(input$tx, input$idade, qx, a,input$m )
-        cat('Produto:', nome, '\nO prêmio puro único:', a, '\nPeriodo(n):', periodo, '\nTaxa de juros: ', input$tx, '\nBenefício', input$ben, '\nTábua: ', input$tab )
+        cat('Produto:', nome, 
+            '\nO prêmio puro único:', a, 
+            '\nPeriodo(n):', periodo, 
+            '\nTaxa de juros: ', input$tx, 
+            '\nBenefício', input$ben, 
+            '\nTábua: ', input$tab )
       }else{
         cat('O período temporário está errado')
       }
