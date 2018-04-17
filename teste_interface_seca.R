@@ -127,20 +127,20 @@
     
     v <- f.desconto^(1:n)
     qxx <- c(qx[(idade+1):(idade+n)])
-    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
     Ax <-  b* sum(v*pxx*qxx)
     return (Ax)
   }
   
   SV_Vit <- function(i, idade, b, qx, f.desconto){ # i = taxa de juros, n = tempo, b = valor do beneficio
-    n <- max(Idade)-idade 
+    n <- max(Idade)-idade
     px <- 1-qx
     if(missing(f.desconto))
       f.desconto <- 1/(i+1)
     
     v <- f.desconto^(1:n)
     qxx <- c(qx[(idade+1):(idade+n)])
-    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
     Ax <-  b* sum(v*pxx*qxx)
     Ax <- round(Ax, 2)
     return (Ax)
@@ -173,7 +173,7 @@
       f.desconto <- 1/(i+1)
     
     v <- f.desconto^((1-df):(n-df))
-    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
     ax <- (b* sum(v*pxx))
     return(ax)
   }
