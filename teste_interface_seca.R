@@ -20,7 +20,7 @@
   
   local <- paste0(getwd(), '/tábuas_leitura_R.txt')
   dados <- read.table(local, h=T)
-  notacao<<-"$$Notação$$"
+  notacao<<-"$$A_{x^{1}:\\bar{n}|}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}  \\text{}_{t}p_{x}q_{x+t}$$"
   ui <- dashboardPage(
     dashboardHeader(title = "Halley"), #Cabeçalho
     dashboardSidebar( #Menu Lateral
@@ -67,7 +67,7 @@
 
                                 /* logo when hovered */
                                 .skin-blue .main-header .logo:hover {
-                                background-color: #660066;
+                                background-color: #FAFAFA;
                                 }
 
                                 /* navbar (rest of the header) */
@@ -93,7 +93,7 @@
 
                                 /* other links in the sidebarmenu when hovered */
                                 .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-                                background-color: #660066;
+                                background-color: #FAFAFA;
                                 }
                                 /* toggle button when hovered  */
                                 .skin-blue .main-header .navbar .sidebar-toggle:hover{
@@ -101,6 +101,10 @@
                                 }
                                 .content-wrapper{
                                 background-color: #FAFAFA;
+                                }
+                                div#math{
+                                font-size:24;
+                                font-color: navy;
                                 }
                                 '))),
 
