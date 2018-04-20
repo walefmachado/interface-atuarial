@@ -1,9 +1,12 @@
-  # Teste Interface seca. Teste
+  # Teste Interface seca.
   # To do list:
   # Link para a página do outro grupo
   # Fórmulas em TEX
   # Saída em formato de Relatório
-  # 
+  # Comentar
+  # Criar os arquivos de idiomas
+  # Aplicar o Premio Nivelado
+  # Alterar a forma de trabalhar com as tábuas dados$input$tab ou encontrar a tábua pelo nome.. OK
 
 
   library(shiny)
@@ -17,7 +20,7 @@
   
   local <- paste0(getwd(), '/tábuas_leitura_R.txt')
   dados <- read.table(local, h=T)
-  
+  notacao<<-"$$Notação$$"
   ui <- dashboardPage(
     dashboardHeader(title = "Halley"), #Cabeçalho
     dashboardSidebar( #Menu Lateral
@@ -37,11 +40,11 @@
       conditionalPanel(condition = "input.diferido",
                        numericInput("m", "Período de diferimento (m)", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
       #Inputs gerais, aparecem em todos os produtos
-      selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = 1, "AT 83" = 2, "AT 2000" = 3)),
+      selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49" = "AT_49_qx", "AT 83" = "AT_83_qx", "AT 2000M" = "AT_2000B_M_qx", "AT 2000F" = "AT_2000B_F_qx")),
       
       # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
-      conditionalPanel(condition = "input.tab == 3", 
-                       selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
+      # conditionalPanel(condition = "input.tab == 3", 
+      #                  selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
       
       numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
       numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
@@ -54,52 +57,55 @@
     dashboardBody( #Corpo da página
       #Abas usadas para organizar a página por produtos e chamar a saída respectiva para o mesmo
       
-      # tags$head(tags$style(HTML('
-      #                           /* logo */
-      #                           .skin-blue .main-header .logo {
-      #                           background-color: #fafafa;
-      #                           font-family: "Times New Roman", Times, serif;
-      #                           color: #039be5;
-      #                           }
-      #
-      #                           /* logo when hovered */
-      #                           .skin-blue .main-header .logo:hover {
-      #                           background-color: #4fc3f7;
-      #                           }
-      #
-      #                           /* navbar (rest of the header) */
-      #                           .skin-blue .main-header .navbar {
-      #                           background-color: #fafafa;
-      #                           }
-      #
-      #                           /* main sidebar */
-      #                           .skin-blue .main-sidebar {
-      #                           background-color: #212121;
-      #                           }
-      #
-      #                           /* active selected tab in the sidebarmenu */
-      #                           .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
-      #                           background-color: #4fc3f7;
-      #                           }
-      #
-      #                           /* other links in the sidebarmenu */
-      #                           .skin-blue .main-sidebar .sidebar .sidebar-menu a{
-      #                           background-color: #00ff00;
-      #                           color: #000000;
-      #                           }
-      #
-      #                           /* other links in the sidebarmenu when hovered */
-      #                           .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-      #                           background-color: #ff69b4;
-      #                           }
-      #                           /* toggle button when hovered  */
-      #                           .skin-blue .main-header .navbar .sidebar-toggle:hover{
-      #                           background-color: #4fc3f7;
-      #                           }
-      #                           '))),
+      tags$head(tags$style(HTML('
+                                /* logo */
+                                .skin-blue .main-header .logo {
+                                background-color: #0d0d0d;
+                                font-family: "Times New Roman", Times, serif;
+                                color: #039be5;
+                                }
 
-      
-      
+                                /* logo when hovered */
+                                .skin-blue .main-header .logo:hover {
+                                background-color: #660066;
+                                }
+
+                                /* navbar (rest of the header) */
+                                .skin-blue .main-header .navbar {
+                                background-color: #0d0d0d;
+                                }
+
+                                /* main sidebar */
+                                .skin-blue .main-sidebar {
+                                background-color: #212121;
+                                }
+
+                                /* active selected tab in the sidebarmenu */
+                                .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+                                background-color: #330033;
+                                }
+
+                                /* other links in the sidebarmenu */
+                                .skin-blue .main-sidebar .sidebar .sidebar-menu a{
+                                background-color: #00ff00;
+                                color: #000000;
+                                }
+
+                                /* other links in the sidebarmenu when hovered */
+                                .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+                                background-color: #660066;
+                                }
+                                /* toggle button when hovered  */
+                                .skin-blue .main-header .navbar .sidebar-toggle:hover{
+                                background-color: #660066;
+                                }
+                                .content-wrapper{
+                                background-color: #FAFAFA;
+                                }
+                                '))),
+
+
+
       
       
       
@@ -109,7 +115,7 @@
                   tabPanel("Seguro Dotal", icon=icon("user-o"),verbatimTextOutput("dots"),value = 3),
                   
                   id = "abaselecionada"),
-      
+      uiOutput("math"),
       plotlyOutput("plot"), #Saída do gráfico definida pelo UI
       verbatimTextOutput("event") #Saída
     )
@@ -221,30 +227,11 @@
   
 
   #Função de seleção de tábua de vida, usa os inputs como parametros e retorna a tábua desejada
-  tabSelect <- function(tab, sex){ # tab=input$tab e sex=input$sex
-    if(tab==1)
-      return(dados$AT_49_qx)
-    if(tab==2)
-      return(dados$AT_83_qx)
-    if(tab==3){
-      if(sex==1)
-        return(dados$AT_2000B_M_qx)
-      if(sex==2)
-        return(dados$AT_2000B_F_qx)
+  tabSelect <- function(tab){ # tab=input$tab e sex=input$sex
+    operador<-tab==colnames(dados[,])
+    return(dados[,which(operador)])
     }
-  }
-  tabName <- function(tab, sex){ # tab=input$tab e sex=input$sex
-    if(tab==1)
-      return("AT_49")
-    if(tab==2)
-      return("AT_83")
-    if(tab==3){
-      if(sex==1)
-        return("AT_2000B Masculino")
-      if(sex==2)
-        return("AT_2000B Feminino")
-    }
-  }
+  
   
   
   # Cria colunas com a população de uma coorte hipotética para cada tábua de vida para utilização no gráfico
@@ -289,7 +276,7 @@
     #Saída caso a aba selecionada seja a de Seguros de Vida
     output$segs <- renderPrint({
       if((max(dados$Idade)-input$idade) >= input$n){
-        qx<-tabSelect(input$tab, input$sex)
+        qx<-tabSelect(input$tab)
         idade<-round(input$idade, 0)
         if (input$diferido)
           idade <- round(input$idade, 0)+input$m
@@ -319,7 +306,7 @@
     #Saída caso a aba selecionada seja a de Anuidades
     output$anuids = renderPrint({
       if((max(dados$Idade)-input$idade) >= input$n){
-        qx<-tabSelect(input$tab, input$sex)
+        qx<-tabSelect(input$tab)
         idade<-round(input$idade, 0)
         if (input$diferido)
           idade <- round(input$idade, 0)+input$m
@@ -350,7 +337,7 @@
     #Saída caso a aba selecionada seja a dos Dotais
     output$dots = renderPrint({
       if((max(dados$Idade)-input$idade) >= input$n){
-        qx<-tabSelect(input$tab, input$sex)
+        qx<-tabSelect(input$tab)
         idade<-round(input$idade, 0)
         if (input$diferido)
           idade <- round(input$idade, 0)+input$m
@@ -375,6 +362,10 @@
         cat('O período temporário está errado')
       }
     })
+    output$math <- renderUI(
+      tags$a(href = "shiny.rstudio.com/tutorial", withMathJax(helpText(notacao)))  
+      
+    )
     
     #Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
     output$plot <- renderPlotly({
