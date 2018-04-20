@@ -1,9 +1,12 @@
-  # Teste Interface seca. Teste
+  # Teste Interface seca.
   # To do list:
   # Link para a página do outro grupo
   # Fórmulas em TEX
   # Saída em formato de Relatório
-  # 
+  # Comentar
+  # Criar os arquivos de idiomas
+  # Aplicar o Premio Nivelado
+  # Alterar a forma de trabalhar com as tábuas dados$input$tab ou encontrar a tábua pelo nome..
 
 
   library(shiny)
@@ -17,7 +20,7 @@
   
   local <- paste0(getwd(), '/tábuas_leitura_R.txt')
   dados <- read.table(local, h=T)
-  
+  notacao<<-"$$Notação$$"
   ui <- dashboardPage(
     dashboardHeader(title = "Halley"), #Cabeçalho
     dashboardSidebar( #Menu Lateral
@@ -109,7 +112,9 @@
                   tabPanel("Seguro Dotal", icon=icon("user-o"),verbatimTextOutput("dots"),value = 3),
                   
                   id = "abaselecionada"),
-      
+        # h1(withMathJax("$$\\hat{\\theta}_{j} = \\frac{n}{n + E[\\theta_{j}]/V[\\theta_{j}]}\\bar{X}_{j} + 
+        #                                           \\frac{E[\\theta_{j}]/V[\\theta_{j}]}{n + E[\\theta_{j}]/V[\\theta_{j}]}E[\\theta_{j}]$$")),
+      uiOutput("math"),
       plotlyOutput("plot"), #Saída do gráfico definida pelo UI
       verbatimTextOutput("event") #Saída
     )
@@ -127,20 +132,20 @@
     
     v <- f.desconto^(1:n)
     qxx <- c(qx[(idade+1):(idade+n)])
-    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
     Ax <-  b* sum(v*pxx*qxx)
     return (Ax)
   }
   
   SV_Vit <- function(i, idade, b, qx, f.desconto){ # i = taxa de juros, n = tempo, b = valor do beneficio
-    n <- max(Idade)-idade 
+    n <- max(Idade)-idade
     px <- 1-qx
     if(missing(f.desconto))
       f.desconto <- 1/(i+1)
     
     v <- f.desconto^(1:n)
     qxx <- c(qx[(idade+1):(idade+n)])
-    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
     Ax <-  b* sum(v*pxx*qxx)
     Ax <- round(Ax, 2)
     return (Ax)
@@ -173,7 +178,7 @@
       f.desconto <- 1/(i+1)
     
     v <- f.desconto^((1-df):(n-df))
-    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
     ax <- (b* sum(v*pxx))
     return(ax)
   }
@@ -308,7 +313,7 @@
             '\nIdade: ', input$idade, 
             '\nPeríodo: ', input$n, 
             '\nBenefício: ', input$ben, 
-            '\nTábua: ', input$tab, 
+            '\nTábua: ', tabName(input$tab, input$sex), 
             '\nA variância do prêmio é:', b, 
             '\nO desvio padrão é:', round(sqrt(b), 2))
       }else{
@@ -341,7 +346,7 @@
             '\nTaxa de juros: ', input$tx, 
             '\nIdade: ', input$idade, 
             '\nBenefício', input$ben, 
-            '\nTábua utilizada: ', input$tab ) 
+            '\nTábua utilizada: ', tabName(input$tab, input$sex) ) 
       }else{
         cat('O período temporário está errado')
       }
@@ -370,11 +375,15 @@
             '\nPeriodo(n):', periodo, 
             '\nTaxa de juros: ', input$tx, 
             '\nBenefício', input$ben, 
-            '\nTábua: ', input$tab )
+            '\nTábua: ', tabName(input$tab, input$sex) )
       }else{
         cat('O período temporário está errado')
       }
     })
+    output$math <- renderUI(
+      withMathJax(helpText(notacao))
+      
+    )
     
     #Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
     output$plot <- renderPlotly({
