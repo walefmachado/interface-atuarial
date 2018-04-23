@@ -60,19 +60,20 @@
       tags$head(tags$style(HTML('
                                 /* logo */
                                 .skin-blue .main-header .logo {
-                                background-color: #0d0d0d;
+                                background-color: #FAFAFA;
                                 font-family: "Times New Roman", Times, serif;
-                                color: #039be5;
+                                color: #330033;
                                 }
 
                                 /* logo when hovered */
                                 .skin-blue .main-header .logo:hover {
-                                background-color: #FAFAFA;
+                                background-color: #660066;
+                                color: #FAFAFA;
                                 }
 
                                 /* navbar (rest of the header) */
                                 .skin-blue .main-header .navbar {
-                                background-color: #0d0d0d;
+                                background-color: #FAFAFA;
                                 }
 
                                 /* main sidebar */
@@ -101,10 +102,6 @@
                                 }
                                 .content-wrapper{
                                 background-color: #FAFAFA;
-                                }
-                                div#math{
-                                font-size:24;
-                                font-color: navy;
                                 }
                                 '))),
 
@@ -367,7 +364,7 @@
       }
     })
     output$math <- renderUI(
-      tags$a(href = "shiny.rstudio.com/tutorial", withMathJax(helpText(notacao)))  
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(notacao)))  
       
     )
     
