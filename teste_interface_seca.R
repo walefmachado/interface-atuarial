@@ -1,7 +1,5 @@
 # Teste Interface seca.
 # To do list:
-# Link para a página do outro grupo
-# Fórmulas em TEX
 # Saída em formato de Relatório
 # Comentar
 # Criar os arquivos de idiomas
@@ -20,7 +18,6 @@ library(reshape2)
 
 local <- paste0(getwd(), '/tabuas_de_vida.txt')
 dados <- read.table(local, h=T)
-notacao<<-"$$\t_{m|}{}A_{x^{1}:\\bar{n}|}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}  \\text{}_{t}p_{x}q_{x+t}$$"
 ui <- dashboardPage(
   dashboardHeader(title = "Halley"), #Cabeçalho
   dashboardSidebar( #Menu Lateral
@@ -135,9 +132,19 @@ ui <- dashboardPage(
     
     fluidRow(
       box(
-        title = "Formula de calculo", status = "primary",
-        collapsible = TRUE,
-        uiOutput("math"),
+        title = "Formula de calculo", status = "primary", collapsible = TRUE,
+        conditionalPanel(condition = "input.abaselecionada==1 && input.seg==1",
+                         uiOutput("not_seg_temp")),
+        conditionalPanel(condition = "input.abaselecionada==1 && input.seg==2",
+                         uiOutput("not_seg_vit")),
+        conditionalPanel(condition = "input.abaselecionada==2 && input.anu==1",
+                         uiOutput("anu_temp")),
+        conditionalPanel(condition = "input.abaselecionada==2 && input.anu==2",
+                         uiOutput("anu_vit")),
+        conditionalPanel(condition = "input.abaselecionada==3 && input.dot==1",
+                         uiOutput("not_seg_dot_p")),
+        conditionalPanel(condition = "input.abaselecionada==3 && input.dot==2",
+                         uiOutput("not_seg_dot_m")),
         "x = Idade do segurado", br(), 
         "n = Período", br(),
         "m = Período de diferimento"
@@ -262,7 +269,8 @@ tabSelect <- function(tab){ # tab=input$tab e sex=input$sex
   return(dados[,which(operador)])
   }
 
-{ # Cria colunas com a população de uma coorte hipotética para cada tábua de vida para utilização no gráfico
+# Cria colunas com a população de uma coorte hipotética para cada tábua de vida para utilização no gráfico
+{ 
   dados[paste0(paste0("pop_",names(dados[,2:32])))] <- (10000*cumprod(1 - dados[,2:32]))
   dados_g <- data.frame(dados[,33:63])
   dados_g$Idade <- dados$Idade
@@ -270,6 +278,19 @@ tabSelect <- function(tab){ # tab=input$tab e sex=input$sex
   colnames(dados_long)[colnames(dados_long)=="variable"] <- "Tábua"
   colnames(dados_long)[colnames(dados_long)=="value"] <- "População"
 }
+
+# Notação em LaTeX para as formulas dos produtos
+{ 
+  not_seg_temp <- "$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
+  not_seg_vit <- "$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
+  not_seg_temp_dif <- "$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
+  not_seg_dot_p <- "$$A_{x:\b{n|}^1}= b v^{n}\\text{ }_{n}p_{x}$$"
+  not_seg_dot_m <- "$$A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$"
+  anu_vit <- "$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$"
+  anu_temp <- "$$\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$"
+  
+}
+
 
 # Server ------------------------------------------------------------------
 
@@ -397,8 +418,28 @@ server <- function(input, output, session) {
       cat('O período temporário está errado')
     }
   })
-  output$math <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(notacao)))  
+  output$not_seg_vit <- renderUI(
+    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_vit)))  
+    
+  )
+  output$not_seg_temp <- renderUI(
+    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_temp)))  
+    
+  )
+  output$not_seg_dot_p <- renderUI(
+    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_dot_p)))  
+    
+  )
+  output$not_seg_dot_m <- renderUI(
+    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_dot_m)))  
+    
+  )
+  output$anu_vit <- renderUI(
+    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(anu_vit)))  
+    
+  )
+  output$anu_temp <- renderUI(
+    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(anu_temp)))  
     
   )
   
