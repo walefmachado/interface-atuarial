@@ -5,7 +5,7 @@
 # Criar os arquivos de idiomas
 # Aplicar o Premio Nivelado
 # Alterar a forma de trabalhar com as tábuas dados$input$tab ou encontrar a tábua pelo nome.. OK
-
+# Conferir calculo dos produtos, checar se as posições do px e qx que estão sendo utilizadas são as corretas
 
 library(shiny)
 library(shinydashboard)
@@ -28,7 +28,7 @@ ui <- dashboardPage(
     
     conditionalPanel(condition = "input.abaselecionada==2",
                      selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F)),
-                                     
+    
     conditionalPanel(condition = "input.abaselecionada==3",
                      selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F)),
     
@@ -49,6 +49,9 @@ ui <- dashboardPage(
     numericInput("idade", "Idade", min = 0, max = (nrow(dados)-1), value = 0, step = 1),
     numericInput("ben", "Beneficio ($)", min = 0, max = Inf, value = 1),
     numericInput("tx", "Taxa de juros", min = 0, max = 1, value = 0.06, step = 0.001 ),
+    radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
+    conditionalPanel(condition = "input.premio==3",
+                     numericInput("npremio", "Periodo de pagamento", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
     conditionalPanel(condition = "input.abaselecionada==666", # \m/
                      checkboxInput(inputId = "fecha", label = "fecha"))
     
@@ -56,79 +59,81 @@ ui <- dashboardPage(
   ),
   dashboardBody( #Corpo da página
     #Abas usadas para organizar a página por produtos e chamar a saída respectiva para o mesmo
+    
     tags$head(tags$style(HTML('
                               /* logo */
                               .skin-blue .main-header .logo {
-                              background-color: #0d0d0d;
-                              font-family: "Times New Roman", Times, serif;
-                              color: #039be5;
+                              background-color: #FAFAFA;
+                              font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+                              font-weight: bold;
+                              color: #100033;
                               }
-
+                              
                               /* logo when hovered */
                               .skin-blue .main-header .logo:hover {
-                              background-color: #FAFAFA;
+                              background-color: #2f0066;
+                              color: #FAFAFA;
                               }
-
+                              
                               /* navbar (rest of the header) */
                               .skin-blue .main-header .navbar {
-                              background-color: #0d0d0d;
+                              background-color: #FAFAFA;
                               }
-
+                              
                               /* main sidebar */
                               .skin-blue .main-sidebar {
                               background-color: #212121;
                               }
-
+                              
                               /* active selected tab in the sidebarmenu */
                               .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
-                              background-color: #330033;
+                              background-color: #100033;
+                              font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
                               }
-
+                              
                               /* other links in the sidebarmenu */
                               .skin-blue .main-sidebar .sidebar .sidebar-menu a{
                               background-color: #00ff00;
                               color: #000000;
                               }
-
+                              
                               /* other links in the sidebarmenu when hovered */
                               .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
                               background-color: #FAFAFA;
                               }
                               /* toggle button when hovered  */
                               .skin-blue .main-header .navbar .sidebar-toggle:hover{
-                              background-color: #660066;
+                              background-color: #2f0066;
+                              }
+                              .skin-blue .main-header .navbar .sidebar-toggle{
+                              color: #100033;
                               }
                               .content-wrapper{
                               background-color: #FAFAFA;
                               }
-                              div#math{
-                              font-size:24;
-                              font-color: navy;
-                              }
                               '))),
-
-
-     tabsetPanel(type = "tab", 
+    
+    
+    tabsetPanel(type = "tab", 
                 tabPanel("Seguro de Vida", icon=icon("user"),
                          box(
                            title = "Relatório", status = "primary", #solidHeader = TRUE,
                            collapsible = TRUE,
                            verbatimTextOutput("segs")),value = 1 
-                         ),
+                ),
                 tabPanel("Anuidade", icon=icon("cubes"),
                          box(
                            title = "Relatório", status = "primary", #solidHeader = TRUE,
                            collapsible = TRUE,
                            verbatimTextOutput("anuids")), value = 2
-                         ),
+                ),
                 tabPanel("Seguro Dotal", icon=icon("user-o"),
                          box(
                            title = "Relatório", status = "primary", #solidHeader = TRUE,
                            collapsible = TRUE,
                            verbatimTextOutput("dots")), value = 3 
-                         ),
+                ),
                 id = "abaselecionada"),
-    #uiOutput("math"),
     
     fluidRow(
       box(
@@ -158,8 +163,8 @@ ui <- dashboardPage(
       )
     )
     #plotlyOutput("plot"), #Saída do gráfico definida pelo UI
-  )
-)
+    )
+    )
 
 
 # Funões ------------------------------------------------------------------
@@ -259,7 +264,7 @@ Diferido<- function(i, idade, qx, p, m){
 #Premio nivelado
 #df: 0 para postecipado e 1 para antecipado
 Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagamento, usar um N especifico como input
-  P<-((Anuid(i, idade, n , 1, qx, df))/a)*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto, qx=tabua
+  P<-(a/((Anuid(i, idade, n , 1, qx, df))))*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto, qx=tabua
   return(P)                                  #fr é o fator de fracionamento do premio, input a ser criado****
 }
 
@@ -267,7 +272,7 @@ Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagam
 tabSelect <- function(tab){ # tab=input$tab e sex=input$sex
   operador<-tab==colnames(dados[,])
   return(dados[,which(operador)])
-  }
+}
 
 # Cria colunas com a população de uma coorte hipotética para cada tábua de vida para utilização no gráfico
 { 
@@ -279,15 +284,16 @@ tabSelect <- function(tab){ # tab=input$tab e sex=input$sex
   colnames(dados_long)[colnames(dados_long)=="value"] <- "População"
 }
 
-# Notação em LaTeX para as formulas dos produtos
-{ 
-  not_seg_temp <- "$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
-  not_seg_vit <- "$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
-  not_seg_temp_dif <- "$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
-  not_seg_dot_p <- "$$A_{x:\b{n|}^1}= b v^{n}\\text{ }_{n}p_{x}$$"
-  not_seg_dot_m <- "$$A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$"
-  anu_vit <- "$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$"
-  anu_temp <- "$$\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$"
+#Vida conjunta
+vidaConjunta<-function(qx1, qx2, idade1, idade2){
+  if (idade1>idade2){
+    fim<-116-(idade1-idade2)
+    return(1-((1-qx1[idade1:116])*(1-qx2[idade2:fim])))
+  }
+  else{
+    fim<-116-(idade2-idade1)
+    return(1-((1-qx1[idade1:fim])*(1-qx2[idade2:116])))
+  }
   
 }
 
@@ -334,9 +340,11 @@ server <- function(input, output, session) {
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab)
       idade<-round(input$idade, 0)
-      if (input$diferido)
+      ntotal<-input$n
+      if (input$diferido){
         idade <- round(input$idade, 0)+input$m
-      
+        ntotal <- input$n+input$m 
+      }
       if(input$seg==1){
         a <- SV_Temp(input$tx, idade, input$n, input$ben, qx)
         b <- VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg)
@@ -346,8 +354,19 @@ server <- function(input, output, session) {
         b <- VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg)
       }
       if (input$diferido)
-        a<-Diferido(input$tx, input$idade, qx, a,input$m )
-      cat('O prêmio puro único é:', a,
+        a<-Diferido(input$tx, input$idade, qx, a, input$m)
+      if (input$premio==1){
+        saidapremio<-paste('O prêmio puro único é:', a)
+      }
+      else if(input$premio==2){
+        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 0, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
+      }
+      else if(input$premio==3){
+        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 0, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
+      }
+      cat(saidapremio,
           '\nIdade: ', input$idade, 
           '\nPeríodo: ', input$n, 
           '\nBenefício: ', input$ben, 
@@ -364,14 +383,16 @@ server <- function(input, output, session) {
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab)
       idade<-round(input$idade, 0)
-      if (input$diferido)
+      ntotal <- input$n
+      if (input$diferido){
         idade <- round(input$idade, 0)+input$m
-      
+        ntotal <- input$n+input$m 
+      }
       if(input$anu==1){
         a <- Anuid(input$tx, idade, input$n,  input$ben, qx, 0)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
       }
-
+      
       if(input$anu==2){
         a <- Anuidvit(input$tx, idade,  input$ben, qx, 0)
         
@@ -380,7 +401,18 @@ server <- function(input, output, session) {
       if (input$diferido)
         a<-Diferido(input$tx, input$idade, qx, a,input$m )
       
-      cat('O prêmio puro único é:', a, 
+      if (input$premio==1){
+        saidapremio<-paste('O prêmio puro único é:', a)
+      }
+      else if(input$premio==2){
+        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 0, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
+      }
+      else if(input$premio==3){
+        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 0, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
+      }
+      cat(saidapremio,
           '\nTaxa de juros: ', input$tx, 
           '\nIdade: ', input$idade, 
           '\nBenefício', input$ben, 
@@ -395,8 +427,11 @@ server <- function(input, output, session) {
     if((max(dados$Idade)-input$idade) >= input$n){
       qx<-tabSelect(input$tab)
       idade<-round(input$idade, 0)
-      if (input$diferido)
+      ntotal <- input$n
+      if (input$diferido){
         idade <- round(input$idade, 0)+input$m
+        ntotal <- input$n+input$m 
+      }
       if(input$dot==1){
         a <- Dotal_Puro(input$tx, idade , input$n, input$ben, qx)
         nome<-"Dotal Puro"
@@ -408,7 +443,18 @@ server <- function(input, output, session) {
       periodo<-input$n #Checar
       if (input$diferido)
         a<-Diferido(input$tx, input$idade, qx, a,input$m )
-      cat('Produto:', nome, 
+      if (input$premio==1){
+        saidapremio<-paste('O prêmio puro único é:', a)
+      }
+      else if(input$premio==2){
+        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 0, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
+      }
+      else if(input$premio==3){
+        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 0, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
+      }
+      cat(saidapremio,
           '\nO prêmio puro único:', a, 
           '\nPeriodo(n):', periodo, 
           '\nTaxa de juros: ', input$tx, 
@@ -418,30 +464,68 @@ server <- function(input, output, session) {
       cat('O período temporário está errado')
     }
   })
-  output$not_seg_vit <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_vit)))  
-    
+  
+  
+  #not_seg_temp <- "$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
+  # not_seg_vit <- 
+  # not_seg_temp_dif <- "$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
+  # not_seg_dot_p <- 
+  # not_seg_dot_m <- 
+  # anu_vit <- 
+  # anu_temp <- 
+  
+  
+  output$not_seg_vit <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
+  }
+  
   )
-  output$not_seg_temp <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_temp)))  
+  output$not_seg_temp <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
     
-  )
-  output$not_seg_dot_p <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_dot_p)))  
-    
-  )
-  output$not_seg_dot_m <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_dot_m)))  
-    
-  )
-  output$anu_vit <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(anu_vit)))  
-    
-  )
-  output$anu_temp <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(anu_temp)))  
-    
-  )
+  })
+  output$not_seg_dot_p <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\b{n|}^1}= b v^{n}\\text{ }_{n}p_{x}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x:\b{n|}^1}= b v^{n}\\text{ }_{n}p_{x}$$")))
+  })
+  output$not_seg_dot_m <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))
+  })
+  output$anu_vit <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
+  })
+  output$anu_temp <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
+  })
   
   # Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
   output$plot <- renderPlotly({
@@ -450,7 +534,7 @@ server <- function(input, output, session) {
            aes(x=Idade, y=População, colour= Tábua)) + geom_line() +
       scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
   })
-
+  
   output$event <- renderPrint({
     d <- event_data("plotly_hover")
     if (is.null(d)) "Passe o mouse sobre um ponto!" else d
