@@ -1,11 +1,12 @@
 # Teste Interface seca.
 # To do list:
-# Saída em formato de Relatório
-# Comentar
 # Criar os arquivos de idiomas
-# Aplicar o Premio Nivelado
-# Alterar a forma de trabalhar com as tábuas dados$input$tab ou encontrar a tábua pelo nome.. OK
 # Conferir calculo dos produtos, checar se as posições do px e qx que estão sendo utilizadas são as corretas
+# Conferir as notações dos dotais e das anuidades diferidas
+# Colocar as notações estatísticas ex:  E[Zt]= Sum(Zt*P(T=t)) 
+# Criar um botão de help, para tornar a ferramenta mais independente
+# Colocar o site no ar
+# Separar os arquivos
 
 library(shiny)
 library(shinydashboard)
@@ -28,7 +29,7 @@ ui <- dashboardPage(
     
     conditionalPanel(condition = "input.abaselecionada==2",
                      selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F)),
-                                     
+    
     conditionalPanel(condition = "input.abaselecionada==3",
                      selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F)),
     
@@ -112,29 +113,28 @@ ui <- dashboardPage(
                               background-color: #FAFAFA;
                               }
                               '))),
-
-
-     tabsetPanel(type = "tab", 
+    
+    
+    tabsetPanel(type = "tab", 
                 tabPanel("Seguro de Vida", icon=icon("user"),
                          box(
                            title = "Relatório", status = "primary", #solidHeader = TRUE,
                            collapsible = TRUE,
                            verbatimTextOutput("segs")),value = 1 
-                         ),
+                ),
                 tabPanel("Anuidade", icon=icon("cubes"),
                          box(
                            title = "Relatório", status = "primary", #solidHeader = TRUE,
                            collapsible = TRUE,
                            verbatimTextOutput("anuids")), value = 2
-                         ),
+                ),
                 tabPanel("Seguro Dotal", icon=icon("user-o"),
                          box(
                            title = "Relatório", status = "primary", #solidHeader = TRUE,
                            collapsible = TRUE,
                            verbatimTextOutput("dots")), value = 3 
-                         ),
+                ),
                 id = "abaselecionada"),
-    #uiOutput("math"),
     
     fluidRow(
       box(
@@ -164,8 +164,8 @@ ui <- dashboardPage(
       )
     )
     #plotlyOutput("plot"), #Saída do gráfico definida pelo UI
-  )
-)
+    )
+    )
 
 
 # Funões ------------------------------------------------------------------
@@ -273,7 +273,7 @@ Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagam
 tabSelect <- function(tab){ # tab=input$tab e sex=input$sex
   operador<-tab==colnames(dados[,])
   return(dados[,which(operador)])
-  }
+}
 
 # Cria colunas com a população de uma coorte hipotética para cada tábua de vida para utilização no gráfico
 { 
@@ -295,18 +295,6 @@ vidaConjunta<-function(qx1, qx2, idade1, idade2){
     fim<-116-(idade2-idade1)
     return(1-((1-qx1[idade1:fim])*(1-qx2[idade2:116])))
   }
-  
-}
-
-# Notação em LaTeX para as formulas dos produtos
-{ 
-  #not_seg_temp <- "$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
-  not_seg_vit <- "$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
-  not_seg_temp_dif <- "$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
-  not_seg_dot_p <- "$$A_{x:\b{n|}^1}= b v^{n}\\text{ }_{n}p_{x}$$"
-  not_seg_dot_m <- "$$A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$"
-  anu_vit <- "$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$"
-  anu_temp <- "$$\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$"
   
 }
 
@@ -361,10 +349,12 @@ server <- function(input, output, session) {
       if(input$seg==1){
         a <- SV_Temp(input$tx, idade, input$n, input$ben, qx)
         b <- VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg)
+        cobertura<- paste('\nCobertura(n):', input$n) 
       }
       if(input$seg==2){
         a <- SV_Vit(input$tx, idade, input$ben, qx)
         b <- VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg)
+        cobertura<-""
       }
       if (input$diferido)
         a<-Diferido(input$tx, input$idade, qx, a, input$m)
@@ -380,10 +370,11 @@ server <- function(input, output, session) {
         saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
       }
       cat(saidapremio,
-          '\nIdade: ', input$idade, 
-          '\nPeríodo: ', input$n, 
+          '\nIdade: ', input$idade,
+          cobertura,
           '\nBenefício: ', input$ben, 
-          '\nTábua: ', input$tab, 
+          '\nTábua: ', input$tab,
+          '\nIdade máxima da tábua:', min(which(qx==1)), 
           '\nA variância do prêmio é:', b, 
           '\nO desvio padrão é:', round(sqrt(b), 2))
     }else{
@@ -404,10 +395,12 @@ server <- function(input, output, session) {
       if(input$anu==1){
         a <- Anuid(input$tx, idade, input$n,  input$ben, qx, 0)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
+        cobertura<- paste('\nCobertura(n):', input$n) 
       }
-
+      
       if(input$anu==2){
         a <- Anuidvit(input$tx, idade,  input$ben, qx, 0)
+        cobertura<- "" 
         
       }
       
@@ -428,8 +421,10 @@ server <- function(input, output, session) {
       cat(saidapremio,
           '\nTaxa de juros: ', input$tx, 
           '\nIdade: ', input$idade, 
+          cobertura,
           '\nBenefício', input$ben, 
-          '\nTábua utilizada: ', input$tab ) 
+          '\nTábua utilizada: ', input$tab,
+          '\nIdade máxima da tábua:', min(which(qx==1)) ) 
     }else{
       cat('O período temporário está errado')
     }
@@ -444,7 +439,7 @@ server <- function(input, output, session) {
       if (input$diferido){
         idade <- round(input$idade, 0)+input$m
         ntotal <- input$n+input$m 
-        }
+      }
       if(input$dot==1){
         a <- Dotal_Puro(input$tx, idade , input$n, input$ben, qx)
         nome<-"Dotal Puro"
@@ -469,42 +464,65 @@ server <- function(input, output, session) {
       }
       cat(saidapremio,
           '\nO prêmio puro único:', a, 
-          '\nPeriodo(n):', periodo, 
+          '\nCobertura(n):', periodo, 
           '\nTaxa de juros: ', input$tx, 
           '\nBenefício', input$ben, 
-          '\nTábua: ', input$tab )
+          '\nTábua: ', input$tab,
+          '\nIdade máxima da tábua:', min(which(qx==1)))
     }else{
       cat('O período temporário está errado')
     }
   })
-  output$not_seg_vit <- renderUI({
-    not_seg_temp <<- "$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
+  
+  output$not_seg_temp <- renderUI({
     if (input$diferido)
-      not_seg_temp <<- "$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"
-  },
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_vit)))  
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
     
-  )
-  output$not_seg_temp <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_temp)))  
-    
-  )
-  output$not_seg_dot_p <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_dot_p)))  
-    
-  )
-  output$not_seg_dot_m <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(not_seg_dot_m)))  
-    
-  )
-  output$anu_vit <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(anu_vit)))  
-    
-  )
-  output$anu_temp <- renderUI(
-    tags$a(href = "https://lcaunifal.github.io/portalhalley/", withMathJax(helpText(anu_temp)))  
-    
-  )
+  })
+  output$not_seg_vit <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x}= \\displaystyle\\sum_{t=m}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
+  })
+  output$not_seg_dot_p <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\b{n|}^1}= v^{n}\\text{ }_{n}p_{x}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x:\b{n|}^1}= b v^{n}\\text{ }_{n}p_{x}$$")))
+  })
+  output$not_seg_dot_m <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))
+  })
+  output$anu_vit <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
+  })
+  output$anu_temp <- renderUI({
+    if (input$diferido)
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))  
+    else
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+             withMathJax(helpText("$$\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
+  })
   
   # Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
   output$plot <- renderPlotly({
@@ -513,7 +531,7 @@ server <- function(input, output, session) {
            aes(x=Idade, y=População, colour= Tábua)) + geom_line() +
       scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
   })
-
+  
   output$event <- renderPrint({
     d <- event_data("plotly_hover")
     if (is.null(d)) "Passe o mouse sobre um ponto!" else d
