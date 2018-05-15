@@ -161,6 +161,11 @@ ui <- dashboardPage(
         plotlyOutput("plot"),
         verbatimTextOutput("event") #Saída
         #box(plotlyOutput("plot")),
+      ),
+      box(
+        title = "Gráfico prêmio por idade", status = "primary", #solidHeader = TRUE,
+        collapsible = TRUE,
+        plotOutput("plot2")
       )
     )
     #plotlyOutput("plot"), #Saída do gráfico definida pelo UI
@@ -285,7 +290,18 @@ tabSelect <- function(tab){ # tab=input$tab e sex=input$sex
   colnames(dados_long)[colnames(dados_long)=="value"] <- "População"
 }
 
-#Vida conjunta
+# Cria um conjunto de dados com o prêmio por idade
+p_gra <- function(i, idade, b, qx){
+  p <- c()
+  id <- c()
+  for(j in (0:length(dados$Idade))){
+    id[j] <- j
+    p[j] <- SV_Vit(i, j, b, qx)
+  }
+  list(premio=p, idade=id)
+}
+
+# Vida conjunta
 vidaConjunta<-function(qx1, qx2, idade1, idade2){
   if (idade1>idade2){
     fim<-116-(idade1-idade2)
@@ -528,8 +544,21 @@ server <- function(input, output, session) {
   output$plot <- renderPlotly({
     ti <- "título"
     ggplot(data=dados_long,
-           aes(x=Idade, y=População, colour= Tábua)) + geom_line() +
+           aes(x=Idade, y=População, colour= Tábua)) + geom_line() + theme(legend.position = "none") +
       scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
+  })
+  
+  output$plot2 <- renderPlot({
+    qx <- tabSelect(input$tab)
+    Idade <- input$idade
+    p_gra0 <- as.data.frame(p_gra(input$tx, idade, input$ben, qx)) # input$tx, idade, input$ben, qx
+    ggplot(p_gra0) + 
+      geom_point(aes(x = idade, y = premio, colour = idade == Idade, size = idade == Idade)) + 
+      scale_colour_manual(values = c("black", "red")) + 
+      scale_size_manual(values =c(1, 3)) +
+      geom_ribbon(data=p_gra0,aes(idade, ymin=(premio+0.1),ymax=(premio-0.1)),alpha=0.3) +
+      theme(legend.position = "none") +
+      labs(title="Prêmio por idade", x='Idade', y='Prêmio')
   })
   
   output$event <- renderPrint({
