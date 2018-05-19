@@ -514,7 +514,7 @@ server <- function(input, output, session) {
   })
   output$not_seg_dot_p <- renderUI({
     if (input$diferido)
-      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/",
              withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid^1}= v^{n+m}\\text{ }_{n+m}p_{x}$$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
