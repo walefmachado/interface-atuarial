@@ -151,8 +151,7 @@ ui <- dashboardPage(
                          uiOutput("not_seg_dot_m")),
         "x = Idade do segurado", br(), 
         "n = Período", br(),
-        "m = Período de diferimento", br(),
-        " sdf"
+        "m = Período de diferimento"
       ),
       # box(
       #   title = "Tábuas de Vida", status = "primary", #solidHeader = TRUE,
