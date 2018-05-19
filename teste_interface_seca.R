@@ -514,8 +514,8 @@ server <- function(input, output, session) {
   })
   output$not_seg_dot_p <- renderUI({
     if (input$diferido)
-      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid^1}= v^{n}\\text{ }_{n}p_{x}$$")))  
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid^1}= v^{n+m}\\text{ }_{n+m}p_{x}$$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
              withMathJax(helpText("$$A_{x:\\overline{n}\\mid^1}= b v^{n}\\text{ }_{n}p_{x}$$")))
@@ -523,15 +523,15 @@ server <- function(input, output, session) {
   output$not_seg_dot_m <- renderUI({
     if (input$diferido)
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))  
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid}= \\text{}_{m|}{}A_{x^{1}:\\overline{n|}} + \\text{}_{m|}{}A_{x:\\overline{n|}}")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$A_{x:\b{n|}}= A_{x^{1}:\\overline{n}\\mid} - A_{x:\b{n|}^1} $$")))
+             withMathJax(helpText("$$A_{x:\\overline{n}\\mid}=A_{x^{1}:\\overline{n}} + A_{x:\\overline{n}^1} $$")))  
   })
   output$anu_vit <- renderUI({
     if (input$diferido)
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= v^m\\text{   }_{m}p_{x}\\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x+m}q_{x+t+m}$$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
              withMathJax(helpText("$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
@@ -539,7 +539,7 @@ server <- function(input, output, session) {
   output$anu_temp <- renderUI({
     if (input$diferido)
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))  
+             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\\overline{n}\\mid}= v^m\\text{   }_{m}p_{x} \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x+m}$$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
              withMathJax(helpText("$$\\ddot{a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
