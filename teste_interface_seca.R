@@ -39,9 +39,8 @@ ui <- dashboardPage(
     #Inputs gerais, aparecem em todos os produtos
     selectInput("tab", "Selecione a tábua de vida", choices = c("AT 49M" = "AT.49_MALE", "AT 49F" = "AT.49_FEMALE", "IBGE 2006" = "IBGE_2006",
                                                                 "IBGE 2007" = "IBGE_2007", "IBGE 2008" = "IBGE_2008", "IBGE 2009" = "IBGE_2009",
-                                                                "AT 83F" = "AT.83_FEMALE_IAM", "AT 83M" = "AT.83_MALE_IAM"  ,"AT 2000M" = "AT_2000B_M_qx", 
-                                                                "AT 2000F" = "AT_2000B_F_qx")),
-    
+                                                                "AT 83F" = "AT.83_FEMALE_IAM", "AT 83M" = "AT.83_MALE_IAM"  ,"AT 2000M" = "AT.2000_MALE", 
+                                                                "AT 2000F" = "AT.2000_FEMALE")),    
     # Se a tábua at2000 for selecionada então o individuo pode escolher o sexo do participante.
     # conditionalPanel(condition = "input.tab == 3", 
     #                  selectInput("sex", "Sexo:",choices = c("Masculino" = 1 ,"Feminino" = 2), multiple = F)),
@@ -152,7 +151,8 @@ ui <- dashboardPage(
                          uiOutput("not_seg_dot_m")),
         "x = Idade do segurado", br(), 
         "n = Período", br(),
-        "m = Período de diferimento"
+        "m = Período de diferimento", br(),
+        " sdf"
       ),
       # box(
       #   title = "Tábuas de Vida", status = "primary", #solidHeader = TRUE,
@@ -497,11 +497,11 @@ server <- function(input, output, session) {
   
   output$not_seg_temp <- renderUI({
     if (input$diferido)
-      tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}A_{x^{1}:\bar{n|}}= \\displaystyle\\sum_{t=m}^{(m+n)-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))  
+      tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=m}^{(m+n)-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$A_{x^{1}:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
+             withMathJax(helpText("$$A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
     
   })
   output$not_seg_vit <- renderUI({
@@ -515,18 +515,18 @@ server <- function(input, output, session) {
   output$not_seg_dot_p <- renderUI({
     if (input$diferido)
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\b{n|}^1}= v^{n}\\text{ }_{n}p_{x}$$")))  
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid^1}= v^{n}\\text{ }_{n}p_{x}$$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$A_{x:\b{n|}^1}= b v^{n}\\text{ }_{n}p_{x}$$")))
+             withMathJax(helpText("$$A_{x:\\overline{n}\\mid^1}= b v^{n}\\text{ }_{n}p_{x}$$")))
   })
   output$not_seg_dot_m <- renderUI({
     if (input$diferido)
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))  
+             withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$A_{x:\b{n|}}= A_{x^{1}:\b{n|}} - A_{x:\b{n|}^1} $$")))
+             withMathJax(helpText("$$A_{x:\b{n|}}= A_{x^{1}:\\overline{n}\\mid} - A_{x:\b{n|}^1} $$")))
   })
   output$anu_vit <- renderUI({
     if (input$diferido)
@@ -539,10 +539,10 @@ server <- function(input, output, session) {
   output$anu_temp <- renderUI({
     if (input$diferido)
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))  
+             withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))  
     else
       tags$a(href = "https://lcaunifal.github.io/portalhalley/", 
-             withMathJax(helpText("$$\\ddot{a}_{x:\b{n|}}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
+             withMathJax(helpText("$$\\ddot{a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
   })
   
   # Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
