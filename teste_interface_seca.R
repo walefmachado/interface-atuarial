@@ -5,7 +5,6 @@
 # Conferir as notações dos dotais e das anuidades diferidas
 # Colocar as notações estatísticas ex:  E[Zt]= Sum(Zt*P(T=t)) 
 # Criar um botão de help, para tornar a ferramenta mais independente
-# Colocar o site no ar
 # Separar os arquivos
 
 library(shiny)
@@ -20,7 +19,7 @@ library(reshape2)
 local <- paste0(getwd(), '/tabuas_de_vida.txt')
 dados <- read.table(local, h=T)
 ui <- dashboardPage(
-  dashboardHeader(title = "Halley"), #Cabeçalho
+  dashboardHeader(title = "Portal Halley"), #Cabeçalho
   dashboardSidebar( #Menu Lateral
     
     #Inputs condicionados às abas que se encontram no corpo do código
@@ -155,13 +154,13 @@ ui <- dashboardPage(
         "n = Período", br(),
         "m = Período de diferimento"
       ),
-      box(
-        title = "Tábuas de Vida", status = "primary", #solidHeader = TRUE,
-        collapsible = TRUE,
-        plotlyOutput("plot"),
-        verbatimTextOutput("event") #Saída
-        #box(plotlyOutput("plot")),
-      ),
+      # box(
+      #   title = "Tábuas de Vida", status = "primary", #solidHeader = TRUE,
+      #   collapsible = TRUE,
+      #   plotlyOutput("plot"),
+      #   verbatimTextOutput("event") #Saída
+      #   #box(plotlyOutput("plot")),
+      # ),
       box(
         title = "Gráfico prêmio por idade", status = "primary", #solidHeader = TRUE,
         collapsible = TRUE,
@@ -230,7 +229,10 @@ Anuid <- function(i, idade, n , b, qx, df,f.desconto){ # i= taxa de juros, n= pe
     f.desconto <- 1/(i+1)
   
   v <- f.desconto^((1-df):(n-df))
-  pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
+  if(df==1)
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+  else
+    pxx <- cumprod( px[(idade+1):(idade+n)])
   ax <- (b* sum(v*pxx))
   return(ax)
 }
@@ -244,7 +246,10 @@ Anuidvit <- function(i, idade,b, qx, df, f.desconto){ # i= taxa de juros, n= per
     f.desconto <- 1/(i+1)
   
   v <- f.desconto^((1- df):(n-df))
-  pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+  if(df==1)
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+  else
+    pxx <- cumprod( px[(idade+1):(idade+n)])
   ax <- (b* sum(v*pxx))
   return(ax)
 }
@@ -378,11 +383,11 @@ server <- function(input, output, session) {
         saidapremio<-paste('O prêmio puro único é:', a)
       }
       else if(input$premio==2){
-        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 0, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
         saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
       }
       else if(input$premio==3){
-        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 0, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
         saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
       }
       cat(saidapremio,
@@ -409,13 +414,13 @@ server <- function(input, output, session) {
         ntotal <- input$n+input$m 
       }
       if(input$anu==1){
-        a <- Anuid(input$tx, idade, input$n,  input$ben, qx, 0)
+        a <- Anuid(input$tx, idade, input$n,  input$ben, qx, 1)
         # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
         cobertura<- paste('\nCobertura(n):', input$n) 
       }
       
       if(input$anu==2){
-        a <- Anuidvit(input$tx, idade,  input$ben, qx, 0)
+        a <- Anuidvit(input$tx, idade,  input$ben, qx, 1)
         cobertura<- "" 
         
       }
@@ -427,11 +432,11 @@ server <- function(input, output, session) {
         saidapremio<-paste('O prêmio puro único é:', a)
       }
       else if(input$premio==2){
-        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 0, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
         saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
       }
       else if(input$premio==3){
-        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 0, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
         saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
       }
       cat(saidapremio,
@@ -471,11 +476,11 @@ server <- function(input, output, session) {
         saidapremio<-paste('O prêmio puro único é:', a)
       }
       else if(input$premio==2){
-        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 0, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
         saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
       }
       else if(input$premio==3){
-        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 0, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+        aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
         saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
       }
       cat(saidapremio,
@@ -541,12 +546,12 @@ server <- function(input, output, session) {
   })
   
   # Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo
-  output$plot <- renderPlotly({
-    ti <- "título"
-    ggplot(data=dados_long,
-           aes(x=Idade, y=População, colour= Tábua)) + geom_line() + theme(legend.position = "none") +
-      scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
-  })
+  # output$plot <- renderPlotly({
+  #   ti <- "título"
+  #   ggplot(data=dados_long,
+  #          aes(x=Idade, y=População, colour= Tábua)) + geom_line() + theme(legend.position = "none") +
+  #     scale_color_brewer(palette = "Dark2") + labs(title=ti, x='Anos', y='População')
+  # })
   
   output$plot2 <- renderPlot({
     qx <- tabSelect(input$tab)
@@ -561,10 +566,10 @@ server <- function(input, output, session) {
       labs(title="Prêmio por idade", x='Idade', y='Prêmio')
   })
   
-  output$event <- renderPrint({
-    d <- event_data("plotly_hover")
-    if (is.null(d)) "Passe o mouse sobre um ponto!" else d
-  })
+  # output$event <- renderPrint({
+  #   d <- event_data("plotly_hover")
+  #   if (is.null(d)) "Passe o mouse sobre um ponto!" else d
+  # })
   
 }
 
