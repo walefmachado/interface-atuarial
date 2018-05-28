@@ -1,0 +1,50 @@
+/* logo */
+.skin-blue .main-header .logo {
+    background-color: #FAFAFA;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+    font-weight: bold;
+    color: #100033;
+}
+
+/* logo when hovered */
+.skin-blue .main-header .logo:hover {
+    background-color: #2f0066;
+    color: #FAFAFA;
+}
+
+/* navbar (rest of the header) */
+.skin-blue .main-header .navbar {
+    background-color: #FAFAFA;
+}
+
+/* main sidebar */
+.skin-blue .main-sidebar {
+    background-color: #212121;
+}
+
+/* active selected tab in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+    background-color: #100033;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+}
+
+/* other links in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a{
+    background-color: #00ff00;
+    color: #000000;
+}
+
+/* other links in the sidebarmenu when hovered */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+    background-color: #FAFAFA;
+}
+/* toggle button when hovered  */
+.skin-blue .main-header .navbar .sidebar-toggle:hover{
+    background-color: #2f0066;
+}
+.skin-blue .main-header .navbar .sidebar-toggle{
+    color: #100033;
+}
+.content-wrapper{
+    background-color: #FAFAFA;
+}
