@@ -21,6 +21,15 @@ attach(dados)
 
 # i = taxa de juros, n = tempo, b = valor do beneficio
 SV_Temp <- function( i, idade, n, b, qx, f.desconto) {
+  px <- 1-qx
+  if(missing(f.desconto))
+    f.desconto <- 1/(i+1)
+  
+  v <- f.desconto^(1:n)
+  qxx <- c(qx[(idade+1):(idade+n)])
+  pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
+  Ax <-  b* sum(v*pxx*qxx)
+  return (Ax)
 }
 
 # i = taxa de juros, n = tempo, b = valor do beneficio
