@@ -46,28 +46,27 @@ shinyServer(function(input, output, session) {
             }
             if(input$seg==1){
                 a <- SV_Temp(input$tx, idade, input$n, input$ben, qx)
-                b <- VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg)
                 cobertura<- paste('\nCobertura(n):', input$n)
             }
             if(input$seg==2){
                 a <- SV_Vit(input$tx, idade, input$ben, qx)
-                b <- VAR(input$tx, round(input$idade, 0), input$n, input$ben, qx, input$seg)
-                cobertura<-""
+                cobertura <- ""
             }
             if (input$diferido)
                 a<-Diferido(input$tx, input$idade, qx, a, input$m)
+            
             if (input$premio==1){
-                saidapremio<-paste('O prêmio puro único é:', a)
+                saidapremio <- paste('O prêmio puro único é:', a$Ax)
             }
             else if(input$premio==2){
                 #0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
-                aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)
-                saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
+                aniv <- Premio_Niv(input$tx, input$idade, ntotal, a$Ax, qx, 1, ntotal)
+                saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
             }
             else if(input$premio==3){
                 #0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
-                aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)
-                saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
+                aniv <- Premio_Niv(input$tx, input$idade, input$npremio, a$Ax, qx, 1, input$npremio)
+                saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
             }
             cat(saidapremio,
                 '\nIdade: ', input$idade,
@@ -75,8 +74,8 @@ shinyServer(function(input, output, session) {
                 '\nBenefício: ', input$ben,
                 '\nTábua: ', input$tab,
                 '\nIdade máxima da tábua:', min(which(qx==1)),
-                '\nA variância do prêmio é:', b,
-                '\nO desvio padrão é:', round(sqrt(b), 2))
+                '\nA variância do prêmio é:', a$Var,
+                '\nO desvio padrão é:', round(sqrt(a$Var), 2))
         }else{
             cat('O período temporário está errado')
         }
@@ -85,8 +84,8 @@ shinyServer(function(input, output, session) {
     #Saída caso a aba selecionada seja a de Anuidades
     output$anuids = renderPrint({
         if((max(dados$Idade)-input$idade) >= input$n){
-            qx<-tabSelect(input$tab)
-            idade<-round(input$idade, 0)
+            qx <- tabSelect(input$tab)
+            idade <- round(input$idade, 0)
             ntotal <- input$n
             if (input$diferido){
                 idade <- round(input$idade, 0)+input$m
@@ -94,29 +93,25 @@ shinyServer(function(input, output, session) {
             }
             if(input$anu==1){
                 a <- Anuid(input$tx, idade, input$n,  input$ben, qx, 1)
-                # b <- round(VAR(input$tx, input$idade, input$n, input$ben, qx, input$anu), 2)
                 cobertura<- paste('\nCobertura(n):', input$n)
             }
-
             if(input$anu==2){
                 a <- Anuidvit(input$tx, idade,  input$ben, qx, 1)
                 cobertura<- ""
-
             }
-
-            if (input$diferido)
-                a<-Diferido(input$tx, input$idade, qx, a,input$m )
-
+            if (input$diferido){
+                a <- Diferido(input$tx, input$idade, qx, a,input$m )
+            }
             if (input$premio==1){
                 saidapremio<-paste('O prêmio puro único é:', a)
             }
             else if(input$premio==2){
-                aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
-                saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
+                aniv <- Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
             }
             else if(input$premio==3){
-                aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
-                saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
+                aniv <- Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
             }
             cat(saidapremio,
                 '\nTaxa de juros: ', input$tx,
@@ -124,7 +119,8 @@ shinyServer(function(input, output, session) {
                 cobertura,
                 '\nBenefício', input$ben,
                 '\nTábua utilizada: ', input$tab,
-                '\nIdade máxima da tábua:', min(which(qx==1)) )
+                '\nIdade máxima da tábua:', min(which(qx==1))
+                )
         }else{
             cat('O período temporário está errado')
         }
@@ -152,23 +148,25 @@ shinyServer(function(input, output, session) {
             if (input$diferido)
                 a<-Diferido(input$tx, input$idade, qx, a,input$m )
             if (input$premio==1){
-                saidapremio<-paste('O prêmio puro único é:', a)
+                saidapremio<-paste('O prêmio puro único é:', a$Ax)
             }
             else if(input$premio==2){
                 aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
                 saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
             }
             else if(input$premio==3){
-                aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                aniv<-Premio_Niv(input$tx, input$idade, input$npremio, a$Ax, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
                 saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
             }
             cat(saidapremio,
-                '\nO prêmio puro único:', a,
+                '\nO prêmio puro único:', a$Ax,
                 '\nCobertura(n):', periodo,
                 '\nTaxa de juros: ', input$tx,
                 '\nBenefício', input$ben,
                 '\nTábua: ', input$tab,
-                '\nIdade máxima da tábua:', min(which(qx==1)))
+                '\nIdade máxima da tábua:', min(which(qx==1)),
+                '\nA variância do prêmio é:', a$Var,
+                '\nO desvio padrão é:', round(sqrt(a$Var), 2))
         }else{
             cat('O período temporário está errado')
         }

@@ -20,57 +20,37 @@ attach(dados)
 
 
 # i = taxa de juros, n = tempo, b = valor do beneficio
-SV_Temp <- function( i, idade, n, b, qx, f.desconto) {
+SV_Temp <- function( i, idade, n, b, qx) {
   px <- 1-qx
-  if(missing(f.desconto))
-    f.desconto <- 1/(i+1)
-  
-  v <- f.desconto^(1:n)
+  v <- 1/(i+1)^(1:n)
+  vp2 <- (((1/(i+1))^2)^(1:n))
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
-  Ax <-  b* sum(v*pxx*qxx)
-  return (Ax)
+  Ax <-  b * sum(v*pxx*qxx)
+  Ax2 <- b * sum(vp2*pxx*qxx)
+  Var <- (Ax2 - (Ax)^2)* b
+  list(Ax=Ax, Ax2=Ax2, Var=Var)     # mudar a notação Ax da saida? A saida agora é uma lista!!! 
 }
 
 # i = taxa de juros, n = tempo, b = valor do beneficio
 SV_Vit <- function(i, idade, b, qx, f.desconto){
     n <- max(Idade)-idade
     px <- 1-qx
-    if(missing(f.desconto))
-        f.desconto <- 1/(i+1)
-
-    v <- f.desconto^(1:n)
+    v <- 1/(i+1)^(1:n)
+    vp2 <- (((1/(i+1))^2)^(1:n)) 
     qxx <- c(qx[(idade+1):(idade+n)])
     pxx <- c(1, cumprod( px[(idade+1):(idade+n)]) )
-    Ax <-  b* sum(v*pxx*qxx)
-    Ax <- round(Ax, 2)
-    return (Ax)
-}
-
-# i = taxa de juros, n = tempo, b = valor do beneficio
-VAR <- function(i, idade, n, b, qx, se){
-    be <- 1
-    if(se==1){
-        Ax <- SV_Temp(i, idade, n, be, qx)
-        Ax2 <- SV_Temp(i, idade, n, be, qx, ((1/(i+1))^2))
-    }
-    if(se==2){
-        Ax <- SV_Vit(i, idade, be, qx)
-        Ax2 <- SV_Vit(i, idade, be, qx, ((1/(i+1))^2))
-    }
-    # if(se==3){
-    #   Ax <- Anuid(i, idade, n , be, qx)
-    #   Ax2 <- Anuid(i, idade, n , be, qx, ((1/(i+1))^2))
-    # }
+    Ax <-  b * sum(v*pxx*qxx)
+    Ax2 <- b * sum(vp2*pxx*qxx)
     Var <- (Ax2 - (Ax)^2)* b
-    return (Var)
+    list(Ax=Ax, Ax2=Ax2, Var=Var)     # mudar a notação Ax da saida
 }
 
 # Verificar o cáculo Pedro
 # Anuidade temporária
 # df: 0 para postecipado e 1 para antecipado
 # i= taxa de juros, n= período, b = benefício
-Anuid <- function(i, idade, n , b, qx, df,f.desconto){
+Anuid <- function(i, idade, n , b, qx, df, f.desconto){
     px <- 1-qx
     if(missing(f.desconto))
         f.desconto <- 1/(i+1)
@@ -105,25 +85,30 @@ Anuidvit <- function(i, idade,b, qx, df, f.desconto){
 Dotal_Puro <- function(i, idade, n, b, qx){
     px <- 1-qx
     v <- 1/(i+1)
+    vp2 <- ((1/(i+1))^2)
     Ax <-  b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
-    return(Ax)
+    Ax2 <- b*(vp2^n)*cumprod(px[(idade+1):(idade+n)])[n]
+    Var <- (Ax2 - (Ax)^2)* b
+    list(Ax=Ax, Ax2=Ax2, Var=Var)
 }
 
 # Dotal Misto
 Dotal <- function(i, idade, n, b, qx){
-    Ax<- (Dotal_Puro(i, idade, n, b, qx)+SV_Temp(i, idade, n, b, qx))
-    return(Ax)
+    Ax <- (((Dotal_Puro(i, idade, n, b, qx))$Ax)+(SV_Temp(i, idade, n, b, qx))$Ax)
+    Ax2 <- (((Dotal_Puro(i, idade, n, b, qx))$Ax)+(SV_Temp(i, idade, n, b, qx))$Ax)
+    Var <- (Ax2 - (Ax)^2)* b
+    list(Ax=Ax, Ax2=Ax2, Var=Var)
 }
 
 Diferido<- function(i, idade, qx, p, m){
-    Dx<-p*Dotal_Puro(i, idade, m, 1, qx)
+    Dx<-p*(Dotal_Puro(i, idade, m, 1, qx))$Ax
     return(Dx)
 }
 
 #Premio nivelado
 #df: 0 para postecipado e 1 para antecipado
-Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagamento, usar um N especifico como input
-    P<-(a/((Anuid(i, idade, n , 1, qx, df))))*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto, qx=tabua
+Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagamento, usar um N especifico como input  
+    P<-(a/((Anuid(i, idade, n , 1, qx, df))))*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto (mudar notação), qx=tabua
     return(P)                                  #fr é o fator de fracionamento do premio, input a ser criado****
 }
 
@@ -149,7 +134,7 @@ p_gra <- function(i, idade, b, qx){
     id <- c()
     for(j in (0:length(dados$Idade))){
         id[j] <- j
-        p[j] <- SV_Vit(i, j, b, qx)
+        p[j] <- (SV_Vit(i, j, b, qx))$Ax
     }
     list(premio=p, idade=id)
 }
