@@ -6,7 +6,7 @@ if (!(is.element("pacman", installed.packages()[,1]))) {
 }
 
 pacman::p_load(plotly, reshape2, shiny, shinydashboard)
-packrat::.snapshotImpl(".", snapshot.sources = FALSE)
+packrat::.snapshotImpl(".", snapshot.sources = FALSE) # cria arquivo packrat com todas dependências 
 
 # Bibliotecas
 library(plotly)
