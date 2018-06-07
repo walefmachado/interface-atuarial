@@ -1,6 +1,4 @@
-# Andryas Waurzenczak                                 Andryaas@gmail.com
-# Funções genéricas
-# Generic functions
+
 # ----------------------------------------------------------------------
 # Verifica Bibliotecas
 if (!(is.element("pacman", installed.packages()[,1]))) {
@@ -8,6 +6,7 @@ if (!(is.element("pacman", installed.packages()[,1]))) {
 }
 
 pacman::p_load(plotly, reshape2, shiny, shinydashboard)
+packrat::.snapshotImpl(".", snapshot.sources = FALSE)
 
 # Bibliotecas
 library(plotly)

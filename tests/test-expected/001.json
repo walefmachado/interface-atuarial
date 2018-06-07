@@ -1,0 +1,101 @@
+{
+  "input": {
+    "abaselecionada": "1",
+    "anu": "2",
+    "ben": 100000,
+    "diferido": false,
+    "dot": "1",
+    "fecha": false,
+    "idade": 1,
+    "m": 2,
+    "n": 1,
+    "npremio": 1,
+    "premio": "3",
+    "seg": "2",
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": null,
+    "tab": "AT.2000_FEMALE",
+    "tx": 0.031
+  },
+  "output": {
+    "anuids": "Prêmio nivelado: 581507.219589059 \nNúmero de parcelas:  1 \nTaxa de juros:  0.06 \nIdade:  1  \nBenefício 100000 \nTábua utilizada:  AT.2000_FEMALE \nIdade máxima da tábua: 116",
+    "anu_temp": {
+      "html": "<a href=\"https://lcaunifal.github.io/portalhalley/\">\n  <head>\n    <!--SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n    <script src=\"https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\" type=\"text/javascript\"><\/script>\n    <!--/SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n  <\/head>\n  <span class=\"help-block\">$$\\text{}_{m|}{}\\ddot{a}_{x:\\overline{n}\\mid}= v^m\\text{   }_{m}p_{x} \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x+m}$$<\/span>\n  <script>if (window.MathJax) MathJax.Hub.Queue([\"Typeset\", MathJax.Hub]);<\/script>\n<\/a>",
+      "deps": [
+
+      ]
+    },
+    "anu_vit": {
+      "html": "<a href=\"https://lcaunifal.github.io/portalhalley/\">\n  <head>\n    <!--SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n    <script src=\"https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\" type=\"text/javascript\"><\/script>\n    <!--/SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n  <\/head>\n  <span class=\"help-block\">$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$<\/span>\n  <script>if (window.MathJax) MathJax.Hub.Queue([\"Typeset\", MathJax.Hub]);<\/script>\n<\/a>",
+      "deps": [
+
+      ]
+    },
+    "dots": "Prêmio nivelado: 32342.2652129979 \nNúmero de parcelas:  1 \nO prêmio puro único: 96919.98 \nCobertura(n): 1 \nTaxa de juros:  0.031 \nBenefício 100000 \nTábua:  AT.2000_FEMALE \nIdade máxima da tábua: 116 \nA variância do prêmio é: -9.393389e+14 \nO desvio padrão é: NaN",
+    "not_seg_dot_m": {
+      "html": "<a href=\"https://lcaunifal.github.io/portalhalley/\">\n  <head>\n    <!--SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n    <script src=\"https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\" type=\"text/javascript\"><\/script>\n    <!--/SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n  <\/head>\n  <span class=\"help-block\">$$A_{x:\\overline{n}\\mid}=A_{x^{1}:\\overline{n}} + A_{x:\\overline{n}^1} $$<\/span>\n  <script>if (window.MathJax) MathJax.Hub.Queue([\"Typeset\", MathJax.Hub]);<\/script>\n<\/a>",
+      "deps": [
+
+      ]
+    },
+    "not_seg_dot_p": {
+      "html": "<a href=\"https://lcaunifal.github.io/portalhalley/\">\n  <head>\n    <!--SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n    <script src=\"https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\" type=\"text/javascript\"><\/script>\n    <!--/SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n  <\/head>\n  <span class=\"help-block\">$$A_{x:\\overline{n}\\mid^1}= b v^{n}\\text{ }_{n}p_{x}$$<\/span>\n  <script>if (window.MathJax) MathJax.Hub.Queue([\"Typeset\", MathJax.Hub]);<\/script>\n<\/a>",
+      "deps": [
+
+      ]
+    },
+    "not_seg_temp": {
+      "html": "<a href=\"https://lcaunifal.github.io/portalhalley/\">\n  <head>\n    <!--SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n    <script src=\"https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\" type=\"text/javascript\"><\/script>\n    <!--/SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n  <\/head>\n  <span class=\"help-block\">$$\\text{}_{m|}{}A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=m}^{(m+n)-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$<\/span>\n  <script>if (window.MathJax) MathJax.Hub.Queue([\"Typeset\", MathJax.Hub]);<\/script>\n<\/a>",
+      "deps": [
+
+      ]
+    },
+    "not_seg_vit": {
+      "html": "<a href=\"https://lcaunifal.github.io/portalhalley/\">\n  <head>\n    <!--SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n    <script src=\"https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\" type=\"text/javascript\"><\/script>\n    <!--/SHINY.SINGLETON[12b42a8f0f7c798243d223ce8cf7a0d518f6c50a]-->\n  <\/head>\n  <span class=\"help-block\">$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$<\/span>\n  <script>if (window.MathJax) MathJax.Hub.Queue([\"Typeset\", MathJax.Hub]);<\/script>\n<\/a>",
+      "deps": [
+
+      ]
+    },
+    "plot2": {
+      "src": "[image data sha1: d4fddbf3b2ae2fbdafe96b01f60427c101679b5f]",
+      "width": 331,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "scale_x": 1,
+          "scale_y": 1,
+          "log": {
+            "x": null,
+            "y": null
+          },
+          "domain": {
+            "left": -4.8,
+            "right": 122.8,
+            "bottom": 4202.63561499146,
+            "top": 101411.914040042
+          },
+          "mapping": {
+            "x": "idade",
+            "y": "premio"
+          },
+          "range": {
+            "left": 53.8904109589041,
+            "right": 325.520547945205,
+            "bottom": 369.109589041096,
+            "top": 24.0547945205479
+          }
+        }
+      ]
+    },
+    "segs": "Prêmio nivelado: 2876.94690520099 \nNúmero de parcelas:  1 \nIdade:  1  \nBenefício:  100000 \nTábua:  AT.2000_FEMALE \nIdade máxima da tábua: 116 \nA variância do prêmio é: -7.432632e+12 \nO desvio padrão é: NaN"
+  },
+  "export": {
+
+  }
+}

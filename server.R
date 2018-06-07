@@ -1,16 +1,7 @@
 # assign(dados)
 
 shinyServer(function(input, output, session) {
-    observe({
-        if(input$idade >= 10)
-        {
-            my_slider_check_test <- "Your slider value is above 100 - no data will be displayed"
-            js_string <- 'alert("SOMETHING");'
-            js_string <- sub("SOMETHING",my_slider_check_test,js_string)
-            session$sendCustomMessage(type='jsCode', list(value = js_string))
-        }
-    })
-
+    
     observe({  #Função usa dados da URL pra mudar parametros dentro do código ex: 127.0.0.1:6510/?abaselecionada=1&seg=2
         query <- parseQueryString(session$clientData$url_search)
 
