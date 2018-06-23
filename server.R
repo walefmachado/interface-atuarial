@@ -1,7 +1,6 @@
 # assign(dados)
 
 shinyServer(function(input, output, session) {
-    
     observe({  #Função usa dados da URL pra mudar parametros dentro do código ex: 127.0.0.1:6510/?abaselecionada=1&seg=2
         query <- parseQueryString(session$clientData$url_search)
 
