@@ -28,23 +28,23 @@ shinyServer(function(input, output, session) {
     output$segs <- renderPrint({
         if((max(dados$Idade)-input$idade) >= input$n){
             qx<-tabSelect(input$tab)
-            idade<-round(input$idade, 0)
             ntotal<-input$n
             if (input$diferido){
-                idade <- round(input$idade, 0)+input$m
                 ntotal <- input$n+input$m
             }
             if(input$seg==1){
-                a <- SV_Temp(input$tx, idade, input$n, input$ben, qx)
+                A <- SV_Temp
                 cobertura<- paste('\nCobertura(n):', input$n)
             }
             if(input$seg==2){
-                a <- SV_Vit(input$tx, idade, input$ben, qx)
+                A <- SV_Vit
                 cobertura <- ""
             }
-            if (input$diferido)
-                a<-Diferido(input$tx, input$idade, qx, a, input$m)
-            
+            if (input$diferido){ #(PROD=Anuid, i, idade, n, b, qx, m)
+                a<-Diferido(A, input$tx, input$idade, input$n, b, qx, input$m)
+            }else{
+                a<-A(input$tx, input$idade, input$n, input$ben, qx)
+            }
             if (input$premio==1){
                 saidapremio <- paste('O prêmio puro único é:', a$Ax)
             }
@@ -75,22 +75,22 @@ shinyServer(function(input, output, session) {
     output$anuids = renderPrint({
         if((max(dados$Idade)-input$idade) >= input$n){
             qx <- tabSelect(input$tab)
-            idade <- round(input$idade, 0)
             ntotal <- input$n
             if (input$diferido){
-                idade <- round(input$idade, 0)+input$m
                 ntotal <- input$n+input$m
             }
             if(input$anu==1){
-                a <- Anuid(input$tx, idade, input$n,  input$ben, qx, 1)
+                A <- Anuid
                 cobertura<- paste('\nCobertura(n):', input$n)
             }
             if(input$anu==2){
-                a <- Anuidvit(input$tx, idade,  input$ben, qx, 1)
+                A <- Anuidvit
                 cobertura<- ""
             }
             if (input$diferido){
-                a <- Diferido(input$tx, input$idade, qx, a,input$m )
+                a <- Diferido(A, input$tx, input$idade, input$n, b, qx, input$m)
+            }else{
+                a <- A(input$tx, input$idade, input$n,  input$ben, qx, 1)
             }
             if (input$premio==1){
                 saidapremio<-paste('O prêmio puro único é:', a)
@@ -120,23 +120,25 @@ shinyServer(function(input, output, session) {
     output$dots = renderPrint({
         if((max(dados$Idade)-input$idade) >= input$n){
             qx<-tabSelect(input$tab)
-            idade<-round(input$idade, 0)
             ntotal <- input$n
             if (input$diferido){
                 idade <- round(input$idade, 0)+input$m
                 ntotal <- input$n+input$m
             }
             if(input$dot==1){
-                a <- Dotal_Puro(input$tx, idade , input$n, input$ben, qx)
+                A <- Dotal_Puro
                 nome<-"Dotal Puro"
             }
             if(input$dot==2){
-                a <- Dotal(input$tx, idade, input$n, input$ben, qx)
+                A <- Dotal
                 nome<-"Dotal Misto"
             }
-            periodo<-input$n #Checar
-            if (input$diferido)
-                a<-Diferido(input$tx, input$idade, qx, a,input$m )
+
+            if (input$diferido){
+                a <- Diferido(A, input$tx, input$idade, input$n, b, qx, input$m)
+            }else{
+                a<- A(input$tx, input$idade , input$n, input$ben, qx)
+            }
             if (input$premio==1){
                 saidapremio<-paste('O prêmio puro único é:', a$Ax)
             }
@@ -150,7 +152,7 @@ shinyServer(function(input, output, session) {
             }
             cat(saidapremio,
                 '\nO prêmio puro único:', a$Ax,
-                '\nCobertura(n):', periodo,
+                '\nCobertura(n):', input$n,
                 '\nTaxa de juros: ', input$tx,
                 '\nBenefício', input$ben,
                 '\nTábua: ', input$tab,
@@ -231,6 +233,17 @@ shinyServer(function(input, output, session) {
             geom_ribbon(data=p_gra0,aes(idade, ymin=(premio+0.1),ymax=(premio-0.1)),alpha=0.3) +
             theme(legend.position = "none") +
             labs(title="Prêmio por idade", x='Idade', y='Prêmio')
+    })
+    
+    output$plot3 <- renderPlot({
+      qx <- tabSelect(input$tab)
+      Idade <- input$idade
+      fa_gra0 <- as.data.frame(fa_gra(input$tx, idade, input$n, input$ben, qx)) 
+      ggplot(fa_gra0) +
+        geom_point(aes(x = tempo, y = financeiro, color="navy")) +
+        geom_point(aes(x = tempo, y = atuarial), color="red") +
+        theme(legend.position = "none") +
+        labs(title="VPA x VP", x='Tempo', y='$')
     })
 
     # output$event <- renderPrint({
