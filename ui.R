@@ -106,11 +106,19 @@ dashboardPage(
             #   verbatimTextOutput("event") #Saída
             #   #box(plotlyOutput("plot")),
             # ),
-            box(
-                title = "Gráfico prêmio por idade", status = "primary", #solidHeader = TRUE,
-                collapsible = TRUE,
-                plotOutput("plot2")
-            )
+            conditionalPanel(condition = "input.abaselecionada==1",
+                             box(
+                               title = "Gráfico prêmio por idade", status = "primary", #solidHeader = TRUE,
+                               collapsible = TRUE,
+                               plotOutput("plot2")
+                             )),
+            conditionalPanel(condition = "input.abaselecionada==3",
+                             box(
+                               title = "VPA x VP", status = "primary", #solidHeader = TRUE,
+                               collapsible = TRUE,
+                               plotOutput("plot3")
+                             ))
+            
         )
         #plotlyOutput("plot"), #Saída do gráfico definida pelo UI
     )
