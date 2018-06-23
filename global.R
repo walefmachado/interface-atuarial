@@ -1,5 +1,3 @@
-
-# ----------------------------------------------------------------------
 # Verifica Bibliotecas
 if (!(is.element("pacman", installed.packages()[,1]))) {
     install.packages("pacman")
@@ -15,6 +13,8 @@ library(reshape2)
 
 # Tabuas de Vida
 dados <- read.table('data/tabuas_de_vida.txt', h=T)
+teste <- read.delim('data/teste.csv',
+                    stringsAsFactors = FALSE, header=TRUE)
 attach(dados)
 
 
@@ -149,4 +149,10 @@ vidaConjunta<-function(qx1, qx2, idade1, idade2){
         return(1-((1-qx1[idade1:fim])*(1-qx2[idade2:116])))
     }
 
+}
+
+#Ultimo Sobrevivente
+LastSurvivor<-function(PROD=Anuid, i, idadex, idadez, n , b, qx, qz, df){
+  als<-PROD(i, idadex, n , b, qx, df)+PROD(i, idadez, n , b, qz, df)-PROD(i, 0, n, b, vidaConjunta(qx, qz, idadex, idadez), df)
+  return(als)
 }

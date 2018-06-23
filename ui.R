@@ -26,7 +26,7 @@ dashboardPage(
         conditionalPanel(condition = "input.abaselecionada==3",
                          selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F)),
 
-        conditionalPanel(condition = "(!((input.seg == 2 && input.abaselecionada== 1) || (input.abaselecionada==2 && input.anu == 2)))", numericInput("n", "Período", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
+        conditionalPanel(condition = "(!((input.seg == 2 && input.abaselecionada== 1) || (input.abaselecionada==2 && input.anu == 2)))", numericInput("n", "Cobertura", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
         checkboxInput(inputId = "diferido", label = "Diferido"),
         conditionalPanel(condition = "input.diferido",
                          numericInput("m", "Período de diferimento (m)", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
@@ -82,7 +82,7 @@ dashboardPage(
 
         fluidRow(
             box(
-                title = "Formula de calculo", status = "primary", collapsible = TRUE,
+                title = "Fórmula de calculo", status = "primary", collapsible = TRUE,
                 conditionalPanel(condition = "input.abaselecionada==1 && input.seg==1",
                                  uiOutput("not_seg_temp")),
                 conditionalPanel(condition = "input.abaselecionada==1 && input.seg==2",
