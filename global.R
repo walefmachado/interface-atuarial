@@ -13,8 +13,7 @@ library(reshape2)
 
 # Tabuas de Vida
 dados <- read.table('data/tabuas_de_vida.txt', h=T)
-teste <- read.delim('data/teste.csv',
-                    stringsAsFactors = FALSE, header=TRUE)
+
 attach(dados)
 
 
@@ -129,6 +128,17 @@ vidaConjunta<-function(qx1, qx2, idade1, idade2){
 LastSurvivor<-function(PROD=Anuid, i, idadex, idadez, n , b, qx, qz){ #Checar df será necessário para usar a função para anuidades postecipadas
   als<-PROD(i, idadex, n , b, qx)+PROD(i, idadez, n , b, qz)-PROD(i, 0, n, b, vidaConjunta(qx, qz, idadex, idadez))
   return(als)
+}
+
+#Expectativa de vida
+Exp_Vida <- function(idade, qx){ 
+  n <- max(Idade)-idade
+  px <- 1-qx
+  t<- ((idade+1):max(Idade))
+  qxx <- c(qx[(idade+1):(idade+n)])
+  pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+  E <-  sum(t*pxx*qxx)
+  return(E)
 }
 
 #Função generalizada para calcular a variancia dos produtos, primeiro estudar o caso das anuidades antes de aplicar as alterações na interface
