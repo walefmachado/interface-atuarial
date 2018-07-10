@@ -169,51 +169,51 @@ shinyServer(function(input, output, session) {
 
     output$not_seg_temp <- renderUI({
         if (input$diferido)
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=m}^{(m+n)-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
         else
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
 
     })
     output$not_seg_vit <- renderUI({
         if (input$diferido)
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}A_{x}= \\displaystyle\\sum_{t=m}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
         else
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} bv^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
     })
     output$not_seg_dot_p <- renderUI({
         if (input$diferido)
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid^1}= v^{n+m}\\text{ }_{n+m}p_{x}$$")))
         else
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$A_{x:\\overline{n}\\mid^1}= b v^{n}\\text{ }_{n}p_{x}$$")))
     })
     output$not_seg_dot_m <- renderUI({
         if (input$diferido)
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid}= \\text{}_{m|}{}A_{x^{1}:\\overline{n|}} + \\text{}_{m|}{}A_{x:\\overline{n|}}")))
         else
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$A_{x:\\overline{n}\\mid}=A_{x^{1}:\\overline{n}} + A_{x:\\overline{n}^1} $$")))
     })
     output$anu_vit <- renderUI({
         if (input$diferido)
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= v^m\\text{   }_{m}p_{x}\\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x+m}q_{x+t+m}$$")))
         else
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
     })
     output$anu_temp <- renderUI({
         if (input$diferido)
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\\overline{n}\\mid}= v^m\\text{   }_{m}p_{x} \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x+m}$$")))
         else
-            tags$a(href = "https://lcaunifal.github.io/portalhalley/",
+            tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\ddot{a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
     })
 
@@ -242,8 +242,8 @@ shinyServer(function(input, output, session) {
       qx <- tabSelect(input$tab)
       fa_gra0 <- as.data.frame(fa_gra(input$tx, input$idade, input$n, input$ben, qx)) 
       ggplot(fa_gra0) +
-        geom_point(aes(x = tempo, y = financeiro, color="darkcyan")) +
-        geom_point(aes(x = tempo, y = atuarial), color="red") +
+        geom_line(aes(x = tempo, y = financeiro)) +
+        geom_line(aes(x = tempo, y = atuarial), color="red") +
         theme(legend.position = "none") +
         labs(title="VPA x VP", x='Tempo', y='$')
     })

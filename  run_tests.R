@@ -7,3 +7,4 @@ test_that("Application works", {
   # which runs on Linux.
   expect_pass(testApp(".", compareImages = FALSE))
 })
+

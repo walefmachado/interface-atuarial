@@ -44,7 +44,6 @@ SV_Vit <- function(i, idade, nv, b, qx){ #nv=nevermind, só serve para padroniza
     list(Ax=Ax, Ax2=Ax2, Var=Var)     # mudar a notação Ax da saida
 }
 
-# Verificar o cáculo Pedro
 # Anuidade temporária
 # df: 0 para postecipado e 1 para antecipado
 # i= taxa de juros, n= período, b = benefício
@@ -52,8 +51,10 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
     px <- 1-qx
     if(missing(df))
         df<-1
-
+      
     v <- (1/(1+i))^((1-df):(n-df))
+    if((n==1)&&(df==1))
+       return(1)
     if(df==1)
         pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
     else
@@ -104,12 +105,15 @@ Diferido<- function(PROD=Anuid, i, idade, n, b, qx, m){
 }
 
 
+
 #Premio nivelado
 #df: 0 para postecipado e 1 para antecipado
 Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagamento, usar um N especifico como input  
     P<-(a/((Anuid(i, idade, n , 1, qx, df))))*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto (mudar notação), qx=tabua
     return(P)                                  #fr é o fator de fracionamento do premio, input a ser criado****
 }
+
+# Anuid <- function(i, idade, n , b, qx, df)
 
 # Vida conjunta
 vidaConjunta<-function(qx1, qx2, idade1, idade2){
