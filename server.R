@@ -64,6 +64,7 @@ shinyServer(function(input, output, session) {
                 '\nBenefício: ', input$ben,
                 '\nTábua: ', input$tab,
                 '\nIdade máxima da tábua:', min(which(qx==1)),
+                '\nExpectativa de vida:', round(Exp_Vida(input$idade, qx), 0),
                 '\nA variância do prêmio é:', a$Var,
                 '\nO desvio padrão é:', round(sqrt(a$Var), 2))
         }else{
@@ -109,7 +110,8 @@ shinyServer(function(input, output, session) {
                 cobertura,
                 '\nBenefício', input$ben,
                 '\nTábua utilizada: ', input$tab,
-                '\nIdade máxima da tábua:', min(which(qx==1))
+                '\nIdade máxima da tábua:', min(which(qx==1)),
+                '\nExpectativa de vida:', round(Exp_Vida(input$idade, qx), 0)
                 )
         }else{
             cat('O período temporário está errado')
@@ -158,7 +160,8 @@ shinyServer(function(input, output, session) {
                 '\nTábua: ', input$tab,
                 '\nIdade máxima da tábua:', min(which(qx==1)),
                 '\nA variância do prêmio é:', a$Var,
-                '\nO desvio padrão é:', round(sqrt(a$Var), 2))
+                '\nO desvio padrão é:', round(sqrt(a$Var), 2),
+                '\nExpectativa de vida:', round(Exp_Vida(input$idade, qx), 0))
         }else{
             cat('O período temporário está errado')
         }
@@ -237,10 +240,9 @@ shinyServer(function(input, output, session) {
     
     output$plot3 <- renderPlot({
       qx <- tabSelect(input$tab)
-      Idade <- input$idade
-      fa_gra0 <- as.data.frame(fa_gra(input$tx, idade, input$n, input$ben, qx)) 
+      fa_gra0 <- as.data.frame(fa_gra(input$tx, input$idade, input$n, input$ben, qx)) 
       ggplot(fa_gra0) +
-        geom_point(aes(x = tempo, y = financeiro, color="navy")) +
+        geom_point(aes(x = tempo, y = financeiro, color="darkcyan")) +
         geom_point(aes(x = tempo, y = atuarial), color="red") +
         theme(legend.position = "none") +
         labs(title="VPA x VP", x='Tempo', y='$')
