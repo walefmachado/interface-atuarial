@@ -41,20 +41,20 @@ shinyServer(function(input, output, session) {
                 cobertura <- ""
             }
             if (input$diferido){ #(PROD=Anuid, i, idade, n, b, qx, m)
-                a<-Diferido(A, input$tx, input$idade, input$n, b, qx, input$m)
+                a<-Diferido(A, input$tx, input$idade, input$n, input$ben, qx, input$m)
             }else{
                 a<-A(input$tx, input$idade, input$n, input$ben, qx)
             }
             if (input$premio==1){
-                saidapremio <- paste('O prêmio puro único é:', a$Ax)
+                saidapremio <- paste('Prêmio puro único imediato:', a$Ax)
             }
             else if(input$premio==2){
-                #0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                #1 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
                 aniv <- Premio_Niv(input$tx, input$idade, ntotal, a$Ax, qx, 1, ntotal)
                 saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
             }
             else if(input$premio==3){
-                #0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                #1 indica ser antecipado, depois criar o input, o segundo input$premio é o fracionamento, depois criar o input
                 aniv <- Premio_Niv(input$tx, input$idade, input$npremio, a$Ax, qx, 1, input$npremio)
                 saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
             }
@@ -89,19 +89,19 @@ shinyServer(function(input, output, session) {
                 cobertura<- ""
             }
             if (input$diferido){
-                a <- Diferido(A, input$tx, input$idade, input$n, b, qx, input$m)
+                a <- Diferido(A, input$tx, input$idade, input$n, input$ben, qx, input$m)
             }else{
-                a <- A(input$tx, input$idade, input$n,  input$ben, qx, 1)
+                a <- A(input$tx, input$idade, input$n,  input$ben, qx, input$df)
             }
             if (input$premio==1){
-                saidapremio<-paste('O prêmio puro único é:', a)
+                saidapremio<-paste('Prêmio puro único imediato:', a$Ax)
             }
             else if(input$premio==2){
-                aniv <- Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                aniv <- Premio_Niv(input$tx, input$idade, ntotal, a$Ax, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
                 saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
             }
             else if(input$premio==3){
-                aniv <- Premio_Niv(input$tx, input$idade, input$npremio, a, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                aniv <- Premio_Niv(input$tx, input$idade, input$npremio, a$Ax, qx, 1, input$npremio)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
                 saidapremio <- paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', input$npremio)
             }
             cat(saidapremio,
@@ -137,12 +137,12 @@ shinyServer(function(input, output, session) {
             }
 
             if (input$diferido){
-                a <- Diferido(A, input$tx, input$idade, input$n, b, qx, input$m)
+                a <- Diferido(A, input$tx, input$idade, input$n, input$ben, qx, input$m)
             }else{
                 a<- A(input$tx, input$idade , input$n, input$ben, qx)
             }
             if (input$premio==1){
-                saidapremio<-paste('O prêmio puro único é:', a$Ax)
+                saidapremio<-paste('Prêmio puro único imediato:', a$Ax)
             }
             else if(input$premio==2){
                 aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
@@ -200,7 +200,7 @@ shinyServer(function(input, output, session) {
             tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$A_{x:\\overline{n}\\mid}=A_{x^{1}:\\overline{n}} + A_{x:\\overline{n}^1} $$")))
     })
-    output$anu_vit <- renderUI({
+    output$anu_vitA <- renderUI({
         if (input$diferido)
             tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= v^m\\text{   }_{m}p_{x}\\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x+m}q_{x+t+m}$$")))
@@ -208,13 +208,29 @@ shinyServer(function(input, output, session) {
             tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
     })
-    output$anu_temp <- renderUI({
+    output$anu_tempA <- renderUI({
         if (input$diferido)
             tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\\overline{n}\\mid}= v^m\\text{   }_{m}p_{x} \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x+m}$$")))
         else
             tags$a(href = "https://walefmachado.github.io/portal-halley/",
                    withMathJax(helpText("$$\\ddot{a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
+    })
+    output$anu_vitP <- renderUI({
+      if (input$diferido)
+        tags$a(href = "https://walefmachado.github.io/portal-halley/",
+               withMathJax(helpText("$$\\text{}_{m|}{}{a}_{x}= v^m\\text{   }_{m}p_{x}\\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x+m}q_{x+t+m}$$")))
+      else
+        tags$a(href = "https://walefmachado.github.io/portal-halley/",
+               withMathJax(helpText("$${a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
+    })
+    output$anu_tempP <- renderUI({
+      if (input$diferido)
+        tags$a(href = "https://walefmachado.github.io/portal-halley/",
+               withMathJax(helpText("$$\\text{}_{m|}{}{a}_{x:\\overline{n}\\mid}= v^m\\text{   }_{m}p_{x} \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x+m}$$")))
+      else
+        tags$a(href = "https://walefmachado.github.io/portal-halley/",
+               withMathJax(helpText("$${a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
     })
 
     # Saída de gráficos, no momento ainda não existe nenhuma condição para que apareça, apenas um modelo

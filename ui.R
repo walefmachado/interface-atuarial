@@ -5,8 +5,6 @@ library(shinydashboard)
 # Teste Interface seca.
 # To do list:
 # Criar os arquivos de idiomas
-# Conferir calculo dos produtos, checar se as posições do px e qx que estão sendo utilizadas são as corretas
-# Conferir as notações dos dotais e das anuidades diferidas
 # Colocar as notações estatísticas ex:  E[Zt]= Sum(Zt*P(T=t))
 # Criar um botão de help, para tornar a ferramenta mais independente
 # Separar os arquivos
@@ -21,7 +19,9 @@ dashboardPage(
                          selectInput("seg", "Selecione o seguro:",choices = c("Seguro Temporário" = 1 ,"Seguro Vitalício" = 2) ,multiple = F)),
 
         conditionalPanel(condition = "input.abaselecionada==2",
-                         selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F)),
+                         selectInput("anu", "Selecione o Produto:",choices = c("Anuidade Temporária" = 1, "Anuidade Vitalícia"=2) ,multiple = F),
+                         conditionalPanel(condition = "!input.diferido",
+                                          checkboxInput(inputId = "df", label = "Antecipado?", value=T))),
 
         conditionalPanel(condition = "input.abaselecionada==3",
                          selectInput("dot", "Selecione o Produto:",choices = c("Dotal Puro" = 1, "Dotal Misto" = 2) ,multiple = F)),
@@ -87,9 +87,17 @@ dashboardPage(
             conditionalPanel(condition = "input.abaselecionada==1 && input.seg==2",
                              uiOutput("not_seg_vit")),
             conditionalPanel(condition = "input.abaselecionada==2 && input.anu==1",
-                             uiOutput("anu_temp")),
+                             conditionalPanel(condition = "input.df",
+                                              uiOutput("anu_tempA")),
+                             conditionalPanel(condition = "!input.df",
+                                              uiOutput("anu_tempP"))
+            ),
             conditionalPanel(condition = "input.abaselecionada==2 && input.anu==2",
-                             uiOutput("anu_vit")),
+                             conditionalPanel(condition = "input.df",
+                                              uiOutput("anu_vitA")),
+                             conditionalPanel(condition = "!input.df",
+                                              uiOutput("anu_vitP"))
+            ),
             conditionalPanel(condition = "input.abaselecionada==3 && input.dot==1",
                              uiOutput("not_seg_dot_p")),
             conditionalPanel(condition = "input.abaselecionada==3 && input.dot==2",
@@ -101,11 +109,16 @@ dashboardPage(
         ),
 
         fluidRow(
-            box(
-              radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
-              conditionalPanel(condition = "input.premio==3",
-                               numericInput("npremio", "Periodo de pagamento", min = 0, max = (nrow(dados)-1), value = 1, step = 1))
-            ),
+          box(
+            radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
+            conditionalPanel(condition = "input.premio==3",
+                             numericInput("npremio", "Periodo de pagamento", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
+            
+            radioButtons(inputId = "carrega", label = "Opções de carregamento", choices= c("Nulo"=1, "Valor único"=2, "Valor periódico"=3)),
+            conditionalPanel(condition = "input.carrega!=1",
+                             numericInput("charge", "$", min = 0, value = 1))
+          ),
+            
             # box(
             #   title = "Tábuas de Vida", status = "primary", #solidHeader = TRUE,
             #   collapsible = TRUE,
@@ -126,7 +139,8 @@ dashboardPage(
                                plotOutput("plot3")
                              ))
             
-        )#,
+        )
+        #,
         # box(
         #   radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
         #     conditionalPanel(condition = "input.premio==3",
