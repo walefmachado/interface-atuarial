@@ -19,15 +19,15 @@ attach(dados)
 
 # i = taxa de juros, n = tempo, b = valor do beneficio
 SV_Temp <- function( i, idade, n, b, qx) {
-  px <- 1-qx
-  v <- 1/(i+1)^(1:n)
-  vp2 <- (((1/(i+1))^2)^(1:n))
-  qxx <- c(qx[(idade+1):(idade+n)])
-  pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  Ax <-  b * sum(v*pxx*qxx)
-  Ax2 <- b * sum(vp2*pxx*qxx)
-  Var <- (Ax2 - (Ax)^2)* b
-  list(Ax=Ax, Ax2=Ax2, Var=Var)     # mudar a notação Ax da saida? A saida agora é uma lista!!! 
+    px <- 1-qx
+    v <- 1/(i+1)^(1:n)
+    vp2 <- (((1/(i+1))^2)^(1:n))
+    qxx <- c(qx[(idade+1):(idade+n)])
+    pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
+    Ax <-  b * sum(v*pxx*qxx)
+    Ax2 <- b * sum(vp2*pxx*qxx)
+    Var <- (Ax2 - (Ax)^2)* b
+    return(list(Ax=Ax, Ax2=Ax2, Var=Var))     # mudar a notação Ax da saida? A saida agora é uma lista!!! 
 }
 
 # i = taxa de juros, n = tempo, b = valor do beneficio
@@ -41,7 +41,7 @@ SV_Vit <- function(i, idade, nv, b, qx){ #nv=nevermind, só serve para padroniza
     Ax <-  b * sum(v*pxx*qxx)
     Ax2 <- b * sum(vp2*pxx*qxx)
     Var <- (Ax2 - (Ax)^2)* b
-    list(Ax=Ax, Ax2=Ax2, Var=Var)     # mudar a notação Ax da saida
+    return(list(Ax=Ax, Ax2=Ax2, Var=Var))     # mudar a notação Ax da saida
 }
 
 # Anuidade temporária
@@ -51,16 +51,18 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
     px <- 1-qx
     if(missing(df))
         df<-1
+    else
+      df<-if(df) 1 else 0
       
     v <- (1/(1+i))^((1-df):(n-df))
     if((n==1)&&(df==1))
-       return(1)
+       return(list(Ax=1, Ax2= 1, var=0))  #Corrigir variancia
     if(df==1)
         pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
     else
         pxx <- cumprod( px[(idade+1):(idade+n)])
     ax <- (b* sum(v*pxx))
-    return(ax)
+    return(list(Ax=ax, Ax2=ax, Var=0)) #Corrigir variancia
 }
 
 # Anuidade vitalícia
@@ -71,14 +73,16 @@ Anuidvit <- function(i, idade, nv, b, qx, df){ #nv=nevermind só coloquei para p
     px <- 1-qx
     if(missing(df))
       df<-1
-
+    else
+      df<-if(df) 1 else 0
+    
     v <- (1/(1+i))^((1- df):(n-df))
     if(df==1)
         pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
     else
         pxx <- cumprod( px[(idade+1):(idade+n)])
     ax <- (b* sum(v*pxx))
-    return(ax)
+    return(list(Ax=ax, Ax2=ax, Var=0)) #Corrigir variancia
 }
 
 Dotal_Puro <- function(i, idade, n, b, qx){
@@ -88,7 +92,7 @@ Dotal_Puro <- function(i, idade, n, b, qx){
     Ax <-  b*(v^n)*cumprod(px[(idade+1):(idade+n)])[n]
     Ax2 <- b*(vp2^n)*cumprod(px[(idade+1):(idade+n)])[n]
     Var <- (Ax2 - (Ax)^2)* b
-    list(Ax=Ax, Ax2=Ax2, Var=Var)
+    return(list(Ax=Ax, Ax2=Ax2, Var=Var))
 }
 
 # Dotal Misto
@@ -96,12 +100,14 @@ Dotal <- function(i, idade, n, b, qx){
     Ax <- (((Dotal_Puro(i, idade, n, b, qx))$Ax)+(SV_Temp(i, idade, n, b, qx))$Ax)
     Ax2 <- (((Dotal_Puro(i, idade, n, b, qx))$Ax)+(SV_Temp(i, idade, n, b, qx))$Ax)
     Var <- (Ax2 - (Ax)^2)* b
-    list(Ax=Ax, Ax2=Ax2, Var=Var)
+    return(list(Ax=Ax, Ax2=Ax2, Var=Var))
 }
+
 #Diferido<- function(i, idade, qx, p, m){  também checar df para anuidades postecipadas
 Diferido<- function(PROD=Anuid, i, idade, n, b, qx, m){
-    Dx<-PROD(i, idade+m, n , b, qx)*(Dotal_Puro(i, idade, m, 1, qx))$Ax
-    return(Dx)
+    Dx<-(PROD(i, idade+m, n , b, qx))$Ax*(Dotal_Puro(i, idade, m, 1, qx))$Ax
+    return(list(Ax=Dx, Ax2=Dx, Var=0)) #Corrigir variancia
+    #return(Dx)
 }
 
 
@@ -176,7 +182,7 @@ p_gra <- function(i, idade, b, qx){
         id[j] <- j
         p[j] <- (SV_Vit(i, j, 0, b, qx))$Ax
     }
-    list(premio=p, idade=id)
+    return(list(premio=p, idade=id))
 }
 
 
@@ -190,7 +196,7 @@ fa_gra <- function(i, idade, fim, b, qx){
     vp[t] <- b*(1/(1+i)^t)
     vpa[t] <- (Dotal_Puro(i, idade, t, b, qx))$Ax
   }
-  list(tempo=n, financeiro=vp, atuarial=vpa)
+  return(list(tempo=n, financeiro=vp, atuarial=vpa))
 }
 
 
