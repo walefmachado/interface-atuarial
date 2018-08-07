@@ -115,7 +115,7 @@ Diferido<- function(PROD=Anuid, i, idade, n, b, qx, m){
 #Premio nivelado
 #df: 0 para postecipado e 1 para antecipado
 Premio_Niv <- function(i, idade, n, a, qx, df, fr){  #i=taxa, n=periodo de pagamento, usar um N especifico como input  
-    P<-(a/((Anuid(i, idade, n , 1, qx, df))))*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto (mudar notação), qx=tabua
+    P<-(a/((Anuid(i, idade, n , 1, qx, df)$Ax)))*(fr^(-1))         #a é o Premio Puro Unico retornado de outro produto (mudar notação), qx=tabua
     return(P)                                  #fr é o fator de fracionamento do premio, input a ser criado****
 }
 

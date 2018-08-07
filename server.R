@@ -145,7 +145,7 @@ shinyServer(function(input, output, session) {
                 saidapremio<-paste('Prêmio puro único imediato:', a$Ax)
             }
             else if(input$premio==2){
-                aniv<-Premio_Niv(input$tx, input$idade, ntotal, a, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
+                aniv<-Premio_Niv(input$tx, input$idade, ntotal, a$Ax, qx, 1, ntotal)#0 indica ser antecipado, depois criar o input, o segundo ntotal é o fracionamento, depois criar o input
                 saidapremio<-paste('Prêmio nivelado:', aniv, '\nNúmero de parcelas: ', ntotal)
             }
             else if(input$premio==3){
