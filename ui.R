@@ -46,11 +46,12 @@ dashboardPage(
         # conditionalPanel(condition = "input.premio==3",
         #                  numericInput("npremio", "Periodo de pagamento", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
         conditionalPanel(condition = "input.abaselecionada==666", # \m/
-                         checkboxInput(inputId = "fecha", label = "fecha"))
+                         checkboxInput(inputId = "fecha", label = "fecha"))#,
+        #tags$img(src="github.png",width=150, align="middle")
 
 
     ),
-
+    
     dashboardBody( #Corpo da página
         #Abas usadas para organizar a página por produtos e chamar a saída respectiva para o mesmo
 
@@ -139,7 +140,19 @@ dashboardPage(
                                plotOutput("plot3")
                              ))
             
+        ),
+        fluidRow(
+          tags$a( href = "http://unifal-mg.edu.br/lar/",
+              tags$img(src="LAR.png",width=150, align="middle")),
+          tags$a( href = "https://walefmachado.github.io/portal-halley/",  #Não sei se a liga tem algum dominio então estarei deixando o link do portal halley aqui temporariamente
+              tags$img(src="LCA.png",width=150, align="middle")),
+          tags$a( href = "http://unifal-mg.edu.br/portal/",
+              tags$img(src="UNIFAL-MG.png",width=150, align="middle")),
+          tags$a( href = "https://github.com/walefmachado/interface-atuarial/",
+              tags$img(src="github.png",width=100, align="right"))
+          
         )
+        
         #,
         # box(
         #   radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
