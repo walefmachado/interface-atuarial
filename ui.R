@@ -2,16 +2,12 @@ library(shiny)
 library(shinydashboard)
 
 
-# Teste Interface seca.
-# To do list:
-# Criar os arquivos de idiomas
-# Colocar as notações estatísticas ex:  E[Zt]= Sum(Zt*P(T=t))
-# Criar um botão de help, para tornar a ferramenta mais independente
-# Separar os arquivos
-
-
 dashboardPage(
-    dashboardHeader(title = "Portal Halley"), #Cabeçalho
+    dashboardHeader(title = "Calculadora Atuarial",
+                    tags$li(class="dropdown",tags$a(href="https://ligadecienciasatuariais.github.io/portalhalley/", icon("newspaper-o"), "", target="_blank", style='color:#100033; font-weight: bold;')),
+                    tags$li(class="dropdown",tags$a(href="https://github.com/walefmachado/interface-atuarial/", icon("github"), "", target="_blank", style='color:#100033; font-weight: bold;'))#,
+                    #tags$li(class="dropdown",tags$a(href="https://ligadecienciasatuariais.github.io/portalhalley/quem-somos.html", icon("github"), "Quem somos", target="_blank"))
+    ), #Cabeçalho
     dashboardSidebar( #Menu Lateral
 
         #Inputs condicionados às abas que se encontram no corpo do código
@@ -58,6 +54,7 @@ dashboardPage(
         tags$head(tags$link(rel = "stylesheet",
                        type = "text/css",
                        href = "styles.css")),
+        #tags$style(type="text/css",".shiny-output-error { visibility: hidden; }",".shiny-output-error:before { visibility: hidden; }"),
 
         fluidRow(
           tabsetPanel(type = "tab",
@@ -71,6 +68,7 @@ dashboardPage(
                                box(
                                    title = "Relatório", status = "primary", #solidHeader = TRUE,
                                    collapsible = TRUE,
+                                   #verbatimTextOutput("teste"),
                                    verbatimTextOutput("anuids")), value = 2
                                ),
                       tabPanel("Seguro Dotal", icon=icon("user-o"),
@@ -80,9 +78,51 @@ dashboardPage(
                                    verbatimTextOutput("dots")), value = 3
                                ),
                       id = "abaselecionada"),
+          
+          # box(
+          #   title = "Tábuas de Vida", status = "primary", #solidHeader = TRUE,
+          #   collapsible = TRUE,
+          #   plotlyOutput("plot"),
+          #   verbatimTextOutput("event") #Saída
+          #   #box(plotlyOutput("plot")),
+          # ),
+          conditionalPanel(condition = "input.abaselecionada==1",
+                           box(
+                             title = "Prêmio por idade para o seguro de vida vitalício", status = "primary", #solidHeader = TRUE,
+                             collapsible = TRUE,
+                             plotlyOutput("plot2")
+                           )),
+          conditionalPanel(condition = "input.abaselecionada==2",
+                           box(
+                             title = "Prêmio por idade para anuidade vitalícia", status = "primary", #solidHeader = TRUE,
+                             collapsible = TRUE,
+                             plotlyOutput("plot4")
+                           )),
+          conditionalPanel(condition = "input.abaselecionada==3",
+                           box(
+                             title = "Comparativo entre valores presentes atuariais e financeiros", status = "primary", #solidHeader = TRUE,
+                             collapsible = TRUE,
+                             plotlyOutput("plot3")
+                           ))
+
+        ),
+
+        fluidRow(
+         
+          box(
+            radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
+            conditionalPanel(condition = "input.premio==3",
+                             numericInput("npremio", "Periodo de pagamento", min = 0, max = (nrow(dados)-1), value = 1, step = 1))#,
+            # conditionalPanel(condition = "input.premio!=1",
+            #                  numericInput("frac", "Fracionamento do prêmio:", min = 1, max = 12*(nrow(dados)-1), value = 1, step = 1))#,
+            
+            # radioButtons(inputId = "carrega", label = "Opções de carregamento", choices= c("Nulo"=1, "Valor único"=2, "Valor periódico"=3)),
+            # conditionalPanel(condition = "input.carrega!=1",
+            #                  numericInput("charge", "$", min = 0, value = 1))
+          ),
           box(
             
-            title = "Fórmula de calculo", status = "primary", collapsible = TRUE,
+            title = "Fórmula de cálculo", status = "primary", collapsible = TRUE,
             conditionalPanel(condition = "input.abaselecionada==1 && input.seg==1",
                              uiOutput("not_seg_temp")),
             conditionalPanel(condition = "input.abaselecionada==1 && input.seg==2",
@@ -106,52 +146,20 @@ dashboardPage(
             "x = Idade do segurado", br(),
             "n = Período", br(),
             "m = Período de diferimento"
-          )
-        ),
-
-        fluidRow(
-          box(
-            radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
-            conditionalPanel(condition = "input.premio==3",
-                             numericInput("npremio", "Periodo de pagamento", min = 0, max = (nrow(dados)-1), value = 1, step = 1)),
-            
-            radioButtons(inputId = "carrega", label = "Opções de carregamento", choices= c("Nulo"=1, "Valor único"=2, "Valor periódico"=3)),
-            conditionalPanel(condition = "input.carrega!=1",
-                             numericInput("charge", "$", min = 0, value = 1))
-          ),
-            
-            # box(
-            #   title = "Tábuas de Vida", status = "primary", #solidHeader = TRUE,
-            #   collapsible = TRUE,
-            #   plotlyOutput("plot"),
-            #   verbatimTextOutput("event") #Saída
-            #   #box(plotlyOutput("plot")),
-            # ),
-            conditionalPanel(condition = "input.abaselecionada==1",
-                             box(
-                               title = "Gráfico prêmio por idade", status = "primary", #solidHeader = TRUE,
-                               collapsible = TRUE,
-                               plotOutput("plot2")
-                             )),
-            conditionalPanel(condition = "input.abaselecionada==3",
-                             box(
-                               title = "VPA x VP", status = "primary", #solidHeader = TRUE,
-                               collapsible = TRUE,
-                               plotOutput("plot3")
-                             ))
-            
-        ),
-        fluidRow(
-          tags$a( href = "http://unifal-mg.edu.br/lar/",
-              tags$img(src="LAR.png",width=150, align="middle")),
-          tags$a( href = "https://walefmachado.github.io/portal-halley/",  #Não sei se a liga tem algum dominio então estarei deixando o link do portal halley aqui temporariamente
-              tags$img(src="LCA.png",width=150, align="middle")),
-          tags$a( href = "http://unifal-mg.edu.br/portal/",
-              tags$img(src="UNIFAL-MG.png",width=150, align="middle")),
-          tags$a( href = "https://github.com/walefmachado/interface-atuarial/",
-              tags$img(src="github.png",width=100, align="right"))
-          
         )
+      ),
+      fluidRow(
+        column(width=4),
+        tags$a( href = "http://unifal-mg.edu.br/portal/",
+                tags$img(src="UNIFAL-MG.png",width=150, align="middle")),
+        tags$a( href = "http://unifal-mg.edu.br/lar/",
+            tags$img(src="LAR.png",width=150, align="middle", style='margin-left:20px;')),
+        tags$a( href = "https://lcaunifal.wordpress.com/",
+            tags$img(src="LCA.png",width=150, align="middle"))#,
+        # tags$a( href = "https://github.com/walefmachado/interface-atuarial/",
+        #     tags$img(src="github.png",width=100, align="right"))
+        
+      )
         
         #,
         # box(
