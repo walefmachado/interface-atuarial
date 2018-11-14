@@ -93,23 +93,23 @@ Anuidvit <- function(i, idade, nv, b, qx, df){ #nv=nevermind só coloquei para p
   v<-1/(1+i)
   vp <- (((1-(v^((1-df+1):(n-df+1))))/(1-v)))
   # vp2 <- (((1-(v^((1-df+1):(n-df+1))))/(1-v)))^2
-  v2<-v^2
-  vp2 <- (((1-(v2^((1-df+1):(n-df+1))))/(1-v2)))
+  #v2<-v^2
+  #vp2 <- (((1-(v2^((1-df+1):(n-df+1))))/(1-v2)))
   if(df==1){
+    vp2<-vp^2
     qxx <- c(qx[(idade+1):(idade+n)])
     pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]))
   }else{
     vp<-vp[-n]-1
-    vp2<-vp2[-n]-1
+    vp2<-vp^2
     pxx <- cumprod( px[(idade+1):(idade+n-1)])
     qxx <- c(qx[(idade+2):(idade+n)])
   }
   ax <- (b* sum(vp*pxx*qxx))
-  ax2 <- (b^2 * sum(vp2*pxx*qxx))
-  Var <- (b*ax2 - (ax)^2)* 
+  ax2 <- (b * sum(vp2*pxx*qxx))
+  Var <- (b*ax2 - (ax)^2)
   return(list(Ax=ax, Ax2=ax2, Var=Var)) #Corrigir variancia
 }
-
 
 #nvdf apenas para padronização
 Dotal_Puro <- function(i, idade, n, b, qx, nvdf){
