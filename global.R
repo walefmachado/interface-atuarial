@@ -18,34 +18,35 @@ attach(dados)
 # i = taxa de juros, n = tempo, b = valor do beneficio, nvdf apenas para padronização
 # seguro de vida temporario
 SV_Temp <- function( i, idade, n, b, qx, nvdf=0) {
-  px <- 1-qx
-  v <- 1/(i+1)^(1:n)
+  px  <- 1-qx
+  v   <- 1/(i+1)^(1:n)
   vp2 <- (((1/(i+1))^2)^(1:n))
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  Ax <-  b * sum(v*pxx*qxx)
-  Ax2 <- b * sum(vp2*pxx*qxx)
+  Ax  <-  b * sum(v*pxx*qxx)                # Primeiro momento multiplicado ao benefício 
+  Ax2 <- b * sum(vp2*pxx*qxx)              # Segundo momento multiplicado ao benefício (usado para variância)
   Var <- (b*Ax2 - (Ax)^2)
   return(list(Ax=Ax, Ax2=Ax2, Var=Var))     # mudar a notação Ax da saida? A saida agora é uma lista!!! 
 }
 
 # i = taxa de juros, n = tempo, b = valor do beneficio, nvdf apenas para padronização
+# Seguro de vida vitalício
 SV_Vit <- function(i, idade, nv, b, qx, nvdf=0){ #nv=nevermind, só serve para padronizar a chamada dos produtos
   #n <- max(Idade)-idadeO
-  n<-min(which(qx==1))-idade
-  px <- 1-qx
-  v <- 1/(i+1)^(1:n)
+  n   <- min(which(qx==1))-idade
+  px  <- 1-qx
+  v   <- 1/(i+1)^(1:n)
   vp2 <- (((1/(i+1))^2)^(1:n)) 
   qxx <- c(qx[(idade+1):(idade+n)])
   pxx <- c(1, cumprod( px[(idade+1):(idade+n-1)]) )
-  Ax <-  b * sum(v*pxx*qxx)
+  Ax  <- b * sum(v*pxx*qxx)
   Ax2 <- b * sum(vp2*pxx*qxx)
   Var <- (b*Ax2 - (Ax)^2)
   return(list(Ax=Ax, Ax2=Ax2, Var=Var))     # mudar a notação Ax da saida
 } 
 
 # Anuidade temporária
-# df: 0 para postecipado e 1 para antecipado
+# df: 0 para postecipado e 1 para antecipado  < controlador >
 # i= taxa de juros, n= período, b = benefício
 Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1-(1/(1+i))^(1:n))/(1-(1/(1+i)))
   px <- 1-qx
@@ -57,7 +58,7 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
   v<-1/(i+1)
   # ((1-(v^(n+1)))/(1-v))-1
   
-  vp <- (((1-(v^((1-df+1):(n-df+1))))/(1-v)))
+  vp <- (((1-(v^((1-df+1):(n-df+1))))/(1-v)))      # forma fechada das anuidades < série de termos>
   #vp2 <- ((((1-(v^((1-df+1):(n-df+1))))/(1-v))))^2
   
   if((n==1)&&(df==1))
@@ -82,6 +83,8 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
   return(list(Ax=ax, Ax2=ax2, Var=Var)) #Corrigir variancia
 }
 
+
+# Anuidade vitalícia 
 Anuidvit <- function(i, idade, nv, b, qx, df){ #nv=nevermind só coloquei para padronizar a chamada de produtos
   #n <- max(Idade)-idade
   n<-min(which(qx==1))-idade
