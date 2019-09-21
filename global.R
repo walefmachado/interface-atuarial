@@ -79,6 +79,7 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
   ax <- (b* sum(vp*pxx*qxx))
   ax2 <- (b * sum(vp2*pxx*qxx))
   Var <- (b*ax2 - (ax)^2)
+    #Corrigir o meio da conta abaixo "(1 - pxx * vp)" é a origem do problema, essa parte da conta retorna um array
   Frac = sum(vp*pxx*qxx) - (1 - pxx * vp)*(11/24) # prêmio fracionado mensal 
   return(list(Ax=ax, Ax2=ax2, Var=Var, Frac=Frac)) #Corrigir variancia
 }
@@ -284,7 +285,7 @@ actuReport<-function(FUN1=SV_Temp, FUN2=SV_Vit, tipo=1, tab, tx, ben, idade, n=1
       aniv <- Premio_Niv(tx, idade, npremio, a$Ax, qx, 1, npremio)
       saidapremio <- paste('Prêmio nivelado:', round(aniv, 4), '\nNúmero de parcelas: ', npremio)
     }else if (premio == 4){
-      premio_frac <-  a$Ax / (12 * Anuid(tx, idade, n, ben, qx, df)$Frac)
+      premio_frac <-  a$Ax / (12 * Anuid(tx, idade, n, ben, qx, T)$Frac)
       saidapremio <- paste('Prêmio puro periódico anual fracionado: ', round(premio_frac, 4))
       #saidapremio <- paste('Prêmio puro único imediato:', round(a$Ax, 4))
     }
