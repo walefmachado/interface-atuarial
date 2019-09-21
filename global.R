@@ -61,8 +61,10 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
   vp <- (((1-(v^((1-df+1):(n-df+1))))/(1-v)))      # forma fechada das anuidades < série de termos>
   #vp2 <- ((((1-(v^((1-df+1):(n-df+1))))/(1-v))))^2
   
-  if((n==1)&&(df==1))
-    return(list(Ax=1, Ax2= 1, Var=0))  #Corrigir variancia
+  if((n==1)&&(df==1)){
+    Frac = sum(vp*pxx*qxx) - (1 - pxx[2] * vp)*(11/24) # prêmio fracionado mensal 
+    return(list(Ax=1, Ax2= 1, Var=0, Frac = Frac))  #Corrigir variancia
+  }
   if(df==1){
     vp2 <- vp^2
     qxx <- c(qx[(idade+1):(idade+n-1)], 1)
@@ -79,8 +81,7 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
   ax <- (b* sum(vp*pxx*qxx))
   ax2 <- (b * sum(vp2*pxx*qxx))
   Var <- (b*ax2 - (ax)^2)
-    #Corrigir o meio da conta abaixo "(1 - pxx * vp)" é a origem do problema, essa parte da conta retorna um array
-  Frac = sum(vp*pxx*qxx) - (1 - pxx * vp)*(11/24) # prêmio fracionado mensal 
+  Frac = sum(vp*pxx*qxx) - (1 - pxx[n] * vp[n])*(11/24) # prêmio fracionado mensal 
   return(list(Ax=ax, Ax2=ax2, Var=Var, Frac=Frac)) #Corrigir variancia
 }
 
