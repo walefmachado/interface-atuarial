@@ -79,8 +79,8 @@ Anuid <- function(i, idade, n , b, qx, df){ #para calcular a variancia... v2<-(1
   ax <- (b* sum(vp*pxx*qxx))
   ax2 <- (b * sum(vp2*pxx*qxx))
   Var <- (b*ax2 - (ax)^2)
-  
-  return(list(Ax=ax, Ax2=ax2, Var=Var)) #Corrigir variancia
+  Frac = sum(vp*pxx*qxx) - (1 - pxx * vp)*(11/24) # prêmio fracionado mensal 
+  return(list(Ax=ax, Ax2=ax2, Var=Var, Frac=Frac)) #Corrigir variancia
 }
 
 
@@ -262,7 +262,7 @@ actuReport<-function(FUN1=SV_Temp, FUN2=SV_Vit, tipo=1, tab, tx, ben, idade, n=1
     }
     if(tipo==1){
       A <- FUN1
-      cobertura<- paste('\nCobertura(n):', n)
+      cobertura<- paste('\nCobertura:', n)
     }
     if(tipo==2){
       A <- FUN2
@@ -283,6 +283,10 @@ actuReport<-function(FUN1=SV_Temp, FUN2=SV_Vit, tipo=1, tab, tx, ben, idade, n=1
       #1 indica ser antecipado, depois criar o input, o segundo input$premio é o fracionamento, depois criar o input
       aniv <- Premio_Niv(tx, idade, npremio, a$Ax, qx, 1, npremio)
       saidapremio <- paste('Prêmio nivelado:', round(aniv, 4), '\nNúmero de parcelas: ', npremio)
+    }else if (premio == 4){
+      premio_frac <-  a$Ax / (12 * Anuid(tx, idade, n, ben, qx, df)$Frac)
+      saidapremio <- paste('Prêmio puro periódico anual fracionado: ', round(premio_frac, 4))
+      #saidapremio <- paste('Prêmio puro único imediato:', round(a$Ax, 4))
     }
     cat(saidapremio,
         '\nIdade: ', idade,

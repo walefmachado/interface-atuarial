@@ -113,7 +113,7 @@ dashboardPage(
         fluidRow(
          
           box(
-            radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3)),
+            radioButtons(inputId = "premio", label = "Prêmio", choices= c("Puro Único"=1, "Nivelado pela duração do produto"=2, "Nivelado Personalizado"=3, "Anual fracionado"=4)),
             conditionalPanel(condition = "input.premio==3",
                              numericInput("npremio", "Periodo de pagamento", min = 0, max = (nrow(dados)-1), value = 1, step = 1))#,
             # conditionalPanel(condition = "input.premio!=1",
