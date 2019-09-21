@@ -4,7 +4,7 @@ library(shinydashboard)
 
 dashboardPage(
     dashboardHeader(title = "Calculadora Atuarial",
-                    tags$li(class="dropdown",tags$a(href="https://ligadecienciasatuariais.github.io/portalhalley/", icon("newspaper-o"), "", target="_blank", style='color:#100033; font-weight: bold;')),
+                    tags$li(class="dropdown",tags$a(href="https://atuaria.github.io/portalhalley/", icon("newspaper-o"), "", target="_blank", style='color:#100033; font-weight: bold;')),
                     tags$li(class="dropdown",tags$a(href="https://github.com/walefmachado/interface-atuarial/", icon("github"), "", target="_blank", style='color:#100033; font-weight: bold;'))#,
                     #tags$li(class="dropdown",tags$a(href="https://ligadecienciasatuariais.github.io/portalhalley/quem-somos.html", icon("github"), "Quem somos", target="_blank"))
     ), #Cabeçalho
@@ -102,7 +102,10 @@ dashboardPage(
                            box(
                              title = "Comparativo entre valores presentes atuariais e financeiros", status = "primary", #solidHeader = TRUE,
                              collapsible = TRUE,
-                             plotlyOutput("plot3")
+                             plotlyOutput("plot3"),footer = "Este gráfico exibe um comparativo entre o valor presente 
+                             atuarial e o valor presente financeiro. É possível observar que o valor presente atuarial, 
+                             ou prêmio puro único imediato, será sempre menor que o valor presente financeiro pois, 
+                             além da taxa de juros, leva em consideração o risco de morte do segurado"
                            ))
 
         ),
@@ -154,7 +157,7 @@ dashboardPage(
                 tags$img(src="UNIFAL-MG.png",width=150, align="middle")),
         tags$a( href = "http://unifal-mg.edu.br/lar/",
             tags$img(src="LAR.png",width=150, align="middle", style='margin-left:20px;')),
-        tags$a( href = "https://lcaunifal.wordpress.com/",
+        tags$a( href = "https://atuaria.github.io/",
             tags$img(src="LCA.png",width=150, align="middle"))#,
         # tags$a( href = "https://github.com/walefmachado/interface-atuarial/",
         #     tags$img(src="github.png",width=100, align="right"))

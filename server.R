@@ -50,57 +50,67 @@ shinyServer(function(input, output, session) {
   
   output$not_seg_temp <- renderUI({
       if (input$diferido)
-          withMathJax(helpText("$$\\text{}_{m|}{}A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=m}^{(m+n)-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$\\text{}_{m|}{}A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=m}^{(m+n)-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
       else
-          withMathJax(helpText("$$A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$A_{x^{1}:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1}v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
 
   })
   output$not_seg_vit <- renderUI({
       if (input$diferido)
-          withMathJax(helpText("$$\\text{}_{m|}{}A_{x}= \\displaystyle\\sum_{t=m}^{\\infty} v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$\\text{}_{m|}{}A_{x}= \\displaystyle\\sum_{t=m}^{\\infty} v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
       else
-          withMathJax(helpText("$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$A_{x}= \\displaystyle\\sum_{t=0}^{\\infty} v^{t+1}\\text{   }_{t}p_{x}q_{x+t}$$")))
   })
   output$not_seg_dot_p <- renderUI({
       if (input$diferido)
-          withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid^1}= v^{n+m}\\text{ }_{n+m}p_{x}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid^1}= v^{n+m}\\text{ }_{n+m}p_{x}$$")))
       else
-          withMathJax(helpText("$$A_{x:\\overline{n}\\mid^1}= v^{n}\\text{ }_{n}p_{x}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$A_{x:\\overline{n}\\mid^1}= v^{n}\\text{ }_{n}p_{x}$$")))
   })
   output$not_seg_dot_m <- renderUI({
       if (input$diferido)
-          withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid}= \\text{}_{m|}{}A_{x^{1}:\\overline{n|}} + \\text{}_{m|}{}A_{x:\\overline{n|}}"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$\\text{}_{m|}{}A_{x:\\overline{n}\\mid}= \\text{}_{m|}{}A_{x^{1}:\\overline{n|}} + \\text{}_{m|}{}A_{x:\\overline{n|}}")))
       else
-          withMathJax(helpText("$$A_{x:\\overline{n}\\mid}=A_{x^{1}:\\overline{n}} + A_{x:\\overline{n}^1} $$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$A_{x:\\overline{n}\\mid}=A_{x^{1}:\\overline{n}} + A_{x:\\overline{n}^1} $$")))
   })
   output$anu_vitA <- renderUI({
       if (input$diferido)
-          withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= v^m\\text{   }_{m}p_{x}\\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x+m}q_{x+t+m}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x}= v^m\\text{   }_{m}p_{x}\\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x+m}q_{x+t+m}$$")))
       else
-          withMathJax(helpText("$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$"))
+        tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
+          withMathJax(helpText("$$\\ddot{a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
   })
   output$anu_tempA <- renderUI({
       if (input$diferido)
-          tags$a(href = "https://walefmachado.github.io/portal-halley/",
+          tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
                  withMathJax(helpText("$$\\text{}_{m|}{}\\ddot{a}_{x:\\overline{n}\\mid}= v^m\\text{   }_{m}p_{x} \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x+m}$$")))
       else
-          tags$a(href = "https://walefmachado.github.io/portal-halley/",
+          tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
                  withMathJax(helpText("$$\\ddot{a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
   })
   output$anu_vitP <- renderUI({
     if (input$diferido)
-      tags$a(href = "https://walefmachado.github.io/portal-halley/",
+      tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
              withMathJax(helpText("$$\\text{}_{m|}{}{a}_{x}= v^m\\text{   }_{m}p_{x}\\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x+m}q_{x+t+m}$$")))
     else
-      tags$a(href = "https://walefmachado.github.io/portal-halley/",
+      tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
              withMathJax(helpText("$${a}_{x}= \\displaystyle\\sum_{t=0}^{\\infty} \\frac{1-v^{t+1}}{1-v}\\text{   }_{t}p_{x}q_{x+t}$$")))
   })
   output$anu_tempP <- renderUI({
     if (input$diferido)
-      tags$a(href = "https://walefmachado.github.io/portal-halley/",
+      tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
              withMathJax(helpText("$$\\text{}_{m|}{}{a}_{x:\\overline{n}\\mid}= v^m\\text{   }_{m}p_{x} \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x+m}$$")))
     else
-      tags$a(href = "https://walefmachado.github.io/portal-halley/",
+      tags$a(href = "https://atuaria.github.io/portalhalley/notas_de_aula.html",
              withMathJax(helpText("$${a}_{x:\\overline{n}\\mid}= \\displaystyle\\sum_{t=0}^{n-1} v^t \\text{   }_{t}p_{x}$$")))
   })
 
