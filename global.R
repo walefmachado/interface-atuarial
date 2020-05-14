@@ -129,9 +129,11 @@ Dotal_Puro <- function(i, idade, n, b, qx, nvdf){
 
 # Dotal Misto , nvdf apenas para padronização
 Dotal <- function(i, idade, n, b, qx, nvdf){
-    Ax <- (((Dotal_Puro(i, idade, n, b, qx))$Ax)+(SV_Temp(i, idade, n, b, qx))$Ax)
-    Ax2 <- (((Dotal_Puro(i, idade, n, b, qx))$Ax)+(SV_Temp(i, idade, n, b, qx))$Ax2)
-    Var <- (b*Ax2 - (Ax)^2)
+    SV_Temp <- SV_Temp(i, idade, n, b, qx)
+    Dotal_P <- Dotal_Puro(i, idade, n, b, qx)
+    Ax <- b * (SV_Temp$Ax + Dotal_P$Ax)
+    Ax2 <- b * (SV_Temp$Ax2 + Dotal_P$Ax2)
+    Var <- Dotal_P$Var + SV_Temp$Var - 2 * SV_Temp$Ax * Dotal_P$Ax
     return(list(Ax=Ax, Ax2=Ax2, Var=Var))
 } 
 
